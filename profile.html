@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your profile — Wandr</title>
+
+  <link rel="icon" type="image/png" href="Images/favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="base.css">
+
+  <link rel="stylesheet" href="profiledesign.css">
+
+  <!-- defer: download the script now, but run it only after the HTML is
+       fully read. Without it, the script would run before the buttons exist. -->
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="logo" href="home.html">
+        <img src="Images/apple-touch-icon.png" alt="" width="30" height="30">
+        <span>Wandr.</span>
+      </a>
+      <nav class="main-nav" id="main-nav">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a href="explore.html">Explore</a></li>
+          <li><a href="trips.html">Trips</a></li>
+          <li><a href="stays.html">Stays</a></li>
+          <li><a href="community.html">Community</a></li>
+        </ul>
+      </nav>
+      <!-- A real link now: signing in has its own page, signin.html. -->
+      <a class="btn btn--solid" href="signin.html">Sign in</a>
+      <!-- Only shown on phones. aria-expanded tells screen readers whether
+           the menu is open; app.js flips it. -->
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+        <span class="menu-toggle__bars" aria-hidden="true"></span>
+        <span class="visually-hidden">Menu</span>
+      </button>
+    </div>
+  </header>
+
+
+  <main class="page">
+
+    <section class="settings" data-settings>
+
+      <header class="settings__head">
+        <p class="settings__crumbs"><span>Profile</span><span aria-hidden="true">›</span><span data-section-title>Account</span></p>
+        <a class="settings__close" href="home.html" aria-label="Close and go home">×</a>
+      </header>
+
+      <div class="settings__signedout" data-signed-out hidden>
+        <h1 class="settings__title">Sign in to see your profile</h1>
+        <p class="settings__lead">Your profile keeps your details, the places you've been and how much of Ghana you've explored.</p>
+        <div class="settings__actions">
+          <a class="btn btn--solid" href="signin.html">Sign in</a>
+          <a class="btn" href="signin.html#create">Create account</a>
+        </div>
+      </div>
+
+      <div class="settings__body" data-signed-in>
+
+        <aside class="settings__side">
+          <div class="me">
+            <span class="me__avatar" data-avatar></span>
+            <span class="me__text">
+              <span class="me__name" data-user-name></span>
+              <span class="me__meta" data-user-progress></span>
+            </span>
+          </div>
+
+          <nav aria-label="Profile sections">
+            <ul class="settings__nav">
+            <li><a class="settings__link" href="#account" data-section-link="account"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span>Account</span></a></li>
+            <li><a class="settings__link" href="#progress" data-section-link="progress"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><span>My Ghana</span></a></li>
+            <li><a class="settings__link" href="#password" data-section-link="password"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Password</span></a></li>
+            <li><a class="settings__link" href="#preferences" data-section-link="preferences"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg><span>Preferences</span></a></li>
+              <li><button class="settings__link" type="button" data-sign-out><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg><span>Sign out</span></button></li>
+              <li class="settings__danger-label"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18v.5"/></svg><span>Danger zone</span></li>
+              <li><button class="settings__link settings__link--danger" type="button" data-delete-account><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span>Delete account</span></button></li>
+            </ul>
+          </nav>
+        </aside>
+
+
+        <div class="settings__main">
+
+          <section class="panel" id="account" data-panel="account" aria-labelledby="account-title">
+            <h1 class="panel__title" id="account-title">Account</h1>
+            <p class="panel__lead">How you appear to other travellers on Wandr.</p>
+
+            <div class="photo">
+              <span class="photo__frame" data-avatar></span>
+              <div class="photo__actions">
+                <label class="btn photo__change" for="avatar-file">Change image <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></label>
+                <input class="visually-hidden" type="file" id="avatar-file" accept="image/*" data-avatar-input>
+                <button class="link-btn photo__remove" type="button" data-avatar-remove>Remove</button>
+              </div>
+              <p class="photo__hint">JPG or PNG, up to 2 MB.</p>
+            </div>
+
+            <form class="panel__form" data-form="account" novalidate>
+              <p class="field">
+                <label class="field__label" for="pf-name">Full name</label>
+                <input class="field__input" id="pf-name" name="name" autocomplete="name">
+              </p>
+
+              <div class="field">
+                <span class="field__row">
+                  <label class="field__label" for="pf-email">Email</label>
+                  <select class="visibility" name="emailVisibility" aria-label="Who can see your email">
+                    <option value="private">Only me</option>
+                    <option value="public">Public</option>
+                  </select>
+                </span>
+                <input class="field__input" id="pf-email" name="email" type="email" autocomplete="email">
+              </div>
+
+              <div class="field">
+                <span class="field__row">
+                  <label class="field__label" for="pf-phone">Phone number</label>
+                  <select class="visibility" name="phoneVisibility" aria-label="Who can see your phone number">
+                    <option value="private">Only me</option>
+                    <option value="public">Public</option>
+                  </select>
+                </span>
+                <span class="phone">
+                  <select class="phone__code" name="phoneCode" aria-label="Country code">
+                    <option value="+233">🇬🇭 +233</option>
+                    <option value="+234">🇳🇬 +234</option>
+                    <option value="+225">🇨🇮 +225</option>
+                    <option value="+44">🇬🇧 +44</option>
+                    <option value="+1">🇺🇸 +1</option>
+                  </select>
+                  <input class="phone__number" id="pf-phone" name="phone" type="tel"
+                         autocomplete="tel-national" placeholder="24 123 4567">
+                </span>
+              </div>
+
+              <p class="field">
+                <label class="field__label" for="pf-region">Home region</label>
+                <select class="field__input" id="pf-region" name="region">
+                  <option value="">Choose a region</option>
+                  <option value="Ahafo">Ahafo</option>
+                  <option value="Ashanti">Ashanti</option>
+                  <option value="Bono">Bono</option>
+                  <option value="Bono East">Bono East</option>
+                  <option value="Central">Central</option>
+                  <option value="Eastern">Eastern</option>
+                  <option value="Greater Accra">Greater Accra</option>
+                  <option value="North East">North East</option>
+                  <option value="Northern">Northern</option>
+                  <option value="Oti">Oti</option>
+                  <option value="Savannah">Savannah</option>
+                  <option value="Upper East">Upper East</option>
+                  <option value="Upper West">Upper West</option>
+                  <option value="Volta">Volta</option>
+                  <option value="Western">Western</option>
+                  <option value="Western North">Western North</option>
+                </select>
+              </p>
+
+              <p class="field">
+                <label class="field__label" for="pf-bio">About you</label>
+                <textarea class="field__input" id="pf-bio" name="bio" rows="3" maxlength="160"
+                          placeholder="Weekend hiker, always looking for the next waterfall."></textarea>
+                <span class="field__count" data-count>0 / 160</span>
+              </p>
+
+              <div class="panel__actions">
+                <button class="btn" type="reset">Cancel</button>
+                <button class="btn btn--solid" type="submit">Save changes</button>
+              </div>
+            </form>
+          </section>
+
+
+          <section class="panel" id="progress" data-panel="progress" aria-labelledby="progress-title" hidden>
+            <h1 class="panel__title" id="progress-title">My Ghana</h1>
+            <p class="panel__lead">Tick off the places you've been and watch the map fill in.</p>
+
+            <div class="explored-hero">
+              <div class="explored-hero__top">
+                <span class="explored-hero__label">Ghana explored</span>
+                <strong class="explored-hero__percent" data-explored-percent>0%</strong>
+              </div>
+              <div class="explored-hero__bar" role="progressbar" aria-label="Places visited"
+                   aria-valuemin="0" aria-valuemax="11" aria-valuenow="0" data-explored-bar><span></span></div>
+              <dl class="explored-hero__stats">
+                <div><dt>Places visited</dt><dd data-explored-places>0 of 11</dd></div>
+                <div><dt>Regions visited</dt><dd data-explored-regions>0 of 16</dd></div>
+                <div><dt>Next up</dt><dd data-explored-next>—</dd></div>
+              </dl>
+            </div>
+
+            <h2 class="panel__subtitle">By region</h2>
+            <ul class="region-list" data-region-list></ul>
+            <p class="panel__note">Wandr lists places in 5 of Ghana's 16 regions so far.</p>
+
+            <h2 class="panel__subtitle">Places</h2>
+            <ul class="place-grid" data-place-grid></ul>
+          </section>
+
+
+          <section class="panel" id="password" data-panel="password" aria-labelledby="password-title" hidden>
+            <h1 class="panel__title" id="password-title">Password</h1>
+            <p class="panel__lead">Use a password you don't use on other sites.</p>
+
+            <form class="panel__form" data-form="password" novalidate>
+              <p class="field">
+                <label class="field__label" for="pw-current">Current password</label>
+                <input class="field__input" id="pw-current" name="current" type="password" autocomplete="current-password">
+              </p>
+
+              <div class="field">
+                <label class="field__label" for="pw-new">New password</label>
+                <input class="field__input" id="pw-new" name="next" type="password" autocomplete="new-password"
+                       aria-describedby="pw-rules">
+                <span class="meter" data-meter><span></span></span>
+                <ul class="rules" id="pw-rules">
+                  <li data-rule="length">8+ characters</li>
+                  <li data-rule="letter">a letter</li>
+                  <li data-rule="number">a number</li>
+                </ul>
+              </div>
+
+              <p class="field">
+                <label class="field__label" for="pw-confirm">Confirm new password</label>
+                <input class="field__input" id="pw-confirm" name="confirm" type="password" autocomplete="new-password">
+              </p>
+
+              <div class="panel__actions">
+                <button class="btn" type="reset">Clear</button>
+                <button class="btn btn--solid" type="submit">Update password</button>
+              </div>
+            </form>
+          </section>
+
+
+          <section class="panel" id="preferences" data-panel="preferences" aria-labelledby="preferences-title" hidden>
+            <h1 class="panel__title" id="preferences-title">Preferences</h1>
+            <p class="panel__lead">Changes save as soon as you make them.</p>
+
+            <form class="panel__form" data-form="preferences">
+              <h2 class="panel__subtitle">Email me about</h2>
+              <div class="switch-list">
+
+            <label class="switch-row">
+              <span>
+                <span class="switch-row__title">Trip reminders</span>
+                <span class="switch-row__hint">A reminder the week before a trip you've planned.</span>
+              </span>
+              <input class="switch" type="checkbox" name="tripReminders">
+            </label>
+
+            <label class="switch-row">
+              <span>
+                <span class="switch-row__title">Replies in my chat rooms</span>
+                <span class="switch-row__hint">When someone answers in a room you've joined.</span>
+              </span>
+              <input class="switch" type="checkbox" name="roomReplies">
+            </label>
+
+            <label class="switch-row">
+              <span>
+                <span class="switch-row__title">Deals on stays</span>
+                <span class="switch-row__hint">Lower prices at hotels near places you've saved.</span>
+              </span>
+              <input class="switch" type="checkbox" name="stayDeals">
+            </label>
+
+            <label class="switch-row">
+              <span>
+                <span class="switch-row__title">Wandr news</span>
+                <span class="switch-row__hint">New places and features, about once a month.</span>
+              </span>
+              <input class="switch" type="checkbox" name="news">
+            </label>
+              </div>
+
+              <h2 class="panel__subtitle">Display</h2>
+              <div class="pref-grid">
+                <p class="field">
+                  <label class="field__label" for="pr-currency">Show prices in</label>
+                  <select class="field__input" id="pr-currency" name="currency">
+                    <option value="GHS">Ghana cedi (GHS)</option>
+                    <option value="USD">US dollar (USD)</option>
+                    <option value="GBP">British pound (GBP)</option>
+                  </select>
+                </p>
+                <p class="field">
+                  <label class="field__label" for="pr-distance">Distances in</label>
+                  <select class="field__input" id="pr-distance" name="distance">
+                    <option value="km">Kilometres</option>
+                    <option value="mi">Miles</option>
+                  </select>
+                </p>
+              </div>
+            </form>
+          </section>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p class="site-footer__line">Wandr — travel in Ghana, planned in one place.</p>
+      <nav>
+        <ul class="site-footer__nav">
+          <li><button class="link-btn" type="button" data-dialog="about">About</button></li>
+          <li><button class="link-btn" type="button" data-dialog="contact">Contact</button></li>
+          <li><button class="link-btn" type="button" data-dialog="privacy">Privacy</button></li>
+        </ul>
+      </nav>
+      <p class="site-footer__copy">&copy; 2026 Wandr.</p>
+    </div>
+  </footer>
+
+</body>
+
+</html>

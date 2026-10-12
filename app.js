@@ -1,12 +1,40 @@
+/* ==========================================================================
+   WANDR — app.js
+   One script for every page. Each section starts by looking for the
+   elements it needs. If they aren't on the current page, that section
+   stops straight away and does nothing — so the Stays code never runs on
+   the Home page, and so on.
+
+   Nothing here talks to a server yet. Buttons show a short message (a
+   "toast") instead of saving anything; when there's a backend, those are
+   the spots where a fetch() call would go.
+
+   Order:
+     1. Helpers           — small tools the rest of the file uses
+     2. Every page        — phone menu, footer dialogs, dates
+     3. Home              — greeting, search, category chips
+     4. Explore           — search and chips for the map and the list
+     5. Trips             — saved trip details, packages, the plan form
+     6. Stays             — filters, sorting, booking a hotel
+     7. Attraction pages  — plan-a-visit panel, photo viewer
+     8. Community         — switching rooms, sending messages
+     9. Sign in           — tabs, checking each field, the done message
+   ========================================================================== */
+
+document.documentElement.classList.add("js");   // lets the CSS know JS is running
 
 
-document.documentElement.classList.add("js");   
+/* --------------------------------------------------------------------------
+   1. HELPERS
+   -------------------------------------------------------------------------- */
 
-
+// Shorthand for the two ways we find things on the page.
+// $ returns the first match; $$ returns every match as a real array.
 const $  = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
-
+// Anything a visitor types must be escaped before it goes into innerHTML,
+// otherwise typing "<b>" into the chat box would turn into real HTML.
 function escapeHTML(text) {
   return String(text)
     .replace(/&/g, "&amp;")
@@ -15,30 +43,30 @@ function escapeHTML(text) {
     .replace(/"/g, "&quot;");
 }
 
-
+// "2027-02-14" -> "Sun 14 Feb 2027"
 function formatDate(isoDate) {
   return new Date(isoDate + "T00:00").toLocaleDateString("en-GB", {
     weekday: "short", day: "numeric", month: "short", year: "numeric",
   });
 }
 
-
+// 2640 -> "GHS 2,640"
 const cedis = (amount) => "GHS " + amount.toLocaleString("en-GB");
 
-
+// Today's date as "YYYY-MM-DD", the format date inputs use.
 function todayISO() {
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   return now.toISOString().slice(0, 10);
 }
 
-
+// Whole nights between two "YYYY-MM-DD" dates.
 function nightsBetween(start, end) {
   const ms = new Date(end + "T00:00") - new Date(start + "T00:00");
   return Math.round(ms / 86400000);
 }
 
-
+// Every attraction, keyed by the short id used in forms and on the map.
 const PLACES = {
   "kakum":      { name: "Kakum National Park",         page: "kakum.html" },
   "cape-coast": { name: "Cape Coast Castle",           page: "cape-coast-castle.html" },
@@ -174,34 +202,8 @@ function setupChips(container, onChange) {
 })();
 
 
-// --- Sign up, About, Contact, Privacy: any button with data-dialog. ---
+// --- About, Contact, Privacy: any button with data-dialog. ---
 const DIALOGS = {
-  signup: () => openDialog({
-    title: "Create your Wandr account",
-    submitLabel: "Sign up",
-    body: `
-      <p class="field">
-        <label class="field__label" for="su-name">Full name</label>
-        <input class="field__input" id="su-name" name="name" autocomplete="name" required>
-      </p>
-      <p class="field">
-        <label class="field__label" for="su-email">Email</label>
-        <input class="field__input" id="su-email" name="email" type="email" autocomplete="email" required>
-      </p>
-      <p class="field">
-        <label class="field__label" for="su-password">Password</label>
-        <input class="field__input" id="su-password" name="password" type="password"
-               minlength="8" autocomplete="new-password" required>
-      </p>
-      <p class="modal__note">At least 8 characters. Accounts aren't stored yet, so nothing you type leaves this page.</p>`,
-    onSubmit(form) {
-      // form.elements.name, not form.name: a <form> already has its own
-      // .name property, which would hide the input called "name".
-      const firstName = form.elements.name.value.trim().split(" ")[0];
-      toast(`Welcome to Wandr, ${firstName}. Check ${form.elements.email.value} to confirm your account.`);
-    },
-  }),
-
   about: () => openDialog({
     title: "About Wandr",
     body: `
@@ -599,6 +601,9 @@ $$('input[type="date"]').forEach((input) => { input.min = todayISO(); });
 })();
 
 
+/* --------------------------------------------------------------------------
+   7. ATTRACTION PAGES
+   -------------------------------------------------------------------------- */
 (function setupAttraction() {
   const panel = $(".booking");
   if (!panel) return;
@@ -802,7 +807,7 @@ $$('input[type="date"]').forEach((input) => { input.min = todayISO(); });
     ROOMS[current].messages.push({ mine: true, time, text });
     render();
 
-   
+    // Update the preview line and time in the room list too.
     const row = $(`.room[data-room="${current}"]`, roomList);
     $(".room__last", row).textContent = `You: ${text}`;
     $(".room__meta time", row).textContent = time;
@@ -811,7 +816,7 @@ $$('input[type="date"]').forEach((input) => { input.min = todayISO(); });
     input.focus();
   });
 
-
+  // --- Leave / join ---
   leave.addEventListener("click", () => {
     const room = ROOMS[current];
     room.joined = !room.joined;
@@ -820,9 +825,254 @@ $$('input[type="date"]').forEach((input) => { input.min = todayISO(); });
     if (room.joined) list.push("joined");
     groups.groups = list.join(" ");
     render();
-    filterRooms();          
+    filterRooms();          // so the room drops out of "Joined" straight away
     toast(room.joined ? `You joined ${room.name}.` : `You left ${room.name}.`);
   });
 
   render();
+})();
+
+
+/* --------------------------------------------------------------------------
+   9. SIGN IN PAGE
+   The pattern for each form is the same:
+     on submit → check every field → if any is wrong, show its message and
+     stop → otherwise pretend to contact a server for a moment → show "done".
+   -------------------------------------------------------------------------- */
+(function setupSignIn() {
+  const tabs = $$('[role="tab"]');
+  if (!tabs.length) return;
+
+  // The heading and line under it change with the tab.
+  const COPY = {
+    signin: { title: "Welcome back",       lead: "Sign in to see your saved trips and bookings." },
+    create: { title: "Create your account", lead: "Save trips, book stays and join the community." },
+  };
+
+
+  // --- Tabs -----------------------------------------------------------------
+  function showTab(name) {
+    tabs.forEach((tab) => {
+      const on = tab.dataset.tab === name;
+      tab.setAttribute("aria-selected", on);
+      tab.tabIndex = on ? 0 : -1;          // only the open tab is reachable with Tab
+      $("#" + tab.getAttribute("aria-controls")).hidden = !on;
+    });
+    $("[data-auth-title]").textContent = COPY[name].title;
+    $("[data-auth-lead]").textContent = COPY[name].lead;
+
+    // Put #create in the address bar, so signin.html#create can be linked to
+    // directly. replaceState changes the address without reloading the page.
+    history.replaceState(null, "", name === "create" ? "#create" : location.pathname);
+  }
+
+  tabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => showTab(tab.dataset.tab));
+
+    // Arrow keys move between tabs — the way tabs work everywhere else.
+    tab.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+      const next = tabs[(index + 1) % tabs.length];
+      showTab(next.dataset.tab);
+      next.focus();
+    });
+  });
+
+  // Open the right tab when the page loads with #create, and again if the
+  // address changes to or from #create while you're already on the page.
+  function tabFromAddress() {
+    showTab(location.hash === "#create" ? "create" : "signin");
+  }
+  tabFromAddress();
+  window.addEventListener("hashchange", tabFromAddress);
+
+
+  // --- Show / hide password ---------------------------------------------------
+  // Switching the input's type between "password" and "text" is all it takes.
+  $$("[data-toggle-password]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const input = button.previousElementSibling;
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      button.textContent = show ? "Hide" : "Show";
+      button.setAttribute("aria-label", show ? "Hide password" : "Show password");
+    });
+  });
+
+
+  // --- Error messages under fields ------------------------------------------
+  // setError(input, "message") shows a message under that field.
+  // setError(input, "") clears it.
+  // It returns true when the field is fine, so checks can be chained.
+  function setError(input, message) {
+    const field = input.closest(".field");
+    let error = $(".field__error", field);
+
+    if (!message) {
+      error?.remove();
+      input.removeAttribute("aria-invalid");
+      return true;
+    }
+
+    if (!error) {
+      error = document.createElement("span");
+      error.className = "field__error";
+      error.id = input.id + "-error";
+      field.append(error);
+    }
+    error.textContent = message;
+    input.setAttribute("aria-invalid", "true");       // red border + screen readers hear "invalid"
+    input.setAttribute("aria-errormessage", error.id);
+    return false;
+  }
+
+  // Typing in a field clears its error straight away.
+  $$(".auth__form input").forEach((input) => {
+    input.addEventListener("input", () => setError(input, ""));
+  });
+
+
+  // --- The checks themselves ------------------------------------------------
+  // Something@something.something — loose on purpose. The only real test of
+  // an email address is sending a message to it.
+  const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function checkEmail(input) {
+    const value = input.value.trim();
+    if (!value) return setError(input, "Enter your email address.");
+    if (!EMAIL.test(value)) return setError(input, "That doesn't look complete. It should be like ama@example.com.");
+    return setError(input, "");
+  }
+
+  // The three password rules, shared by the checklist and by the submit check.
+  const RULES = {
+    length: (value) => value.length >= 8,
+    letter: (value) => /[a-z]/i.test(value),
+    number: (value) => /[0-9]/.test(value),
+  };
+
+
+  // --- Live strength checklist on Create account ------------------------------
+  const newPassword = $("#ca-password");
+  const meter = $("[data-meter]");
+
+  newPassword.addEventListener("input", () => {
+    let met = 0;
+    $$("[data-rule]").forEach((item) => {
+      const ok = RULES[item.dataset.rule](newPassword.value);
+      item.classList.toggle("is-met", ok);
+      if (ok) met++;
+    });
+    meter.dataset.level = met;
+    $("span", meter).style.width = (met / 3) * 100 + "%";
+  });
+
+
+  // --- Pretend to talk to a server ---------------------------------------------
+  // Disables the button and changes its text for a moment, so the page
+  // feels like it's doing something. With a real backend, a fetch() call
+  // would go here instead of setTimeout.
+  function fakeRequest(form, busyText, onDone) {
+    const button = $('button[type="submit"]', form);
+    const label = button.textContent;
+    button.disabled = true;
+    button.textContent = busyText;
+    setTimeout(() => {
+      button.disabled = false;
+      button.textContent = label;
+      onDone();
+    }, 900);
+  }
+
+  // Swap the forms for the "done" message.
+  function finish(title, text) {
+    $("[data-auth-forms]").hidden = true;
+    const done = $("[data-auth-done]");
+    $("[data-done-title]", done).textContent = title;
+    $("[data-done-text]", done).textContent = text;
+    done.hidden = false;
+    done.focus();                          // screen readers announce the message
+  }
+
+  // Moves the cursor to the first field that has a problem.
+  function focusFirstError(form) {
+    $('[aria-invalid="true"]', form)?.focus();
+  }
+
+
+  // --- Sign in -----------------------------------------------------------------
+  const signInForm = $('[data-auth="signin"]');
+
+  signInForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const { email, password } = signInForm.elements;
+
+    // Run every check (not just until the first failure), so all the
+    // problems show at once instead of one at a time.
+    const ok = [
+      checkEmail(email),
+      setError(password, password.value ? "" : "Enter your password."),
+    ].every(Boolean);
+
+    if (!ok) return focusFirstError(signInForm);
+
+    fakeRequest(signInForm, "Signing in…", () => {
+      finish("You're signed in", `Welcome back. You're signed in as ${email.value.trim()}.`);
+    });
+  });
+
+
+  // --- Create account ------------------------------------------------------------
+  const createForm = $('[data-auth="create"]');
+
+  createForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const { name, email, password, confirm, terms } = createForm.elements;
+
+    const passwordOk = Object.values(RULES).every((rule) => rule(password.value));
+
+    const ok = [
+      setError(name, name.value.trim().length >= 2 ? "" : "Enter your name."),
+      checkEmail(email),
+      setError(password, passwordOk ? "" : "Use 8 or more characters, with at least one letter and one number."),
+      setError(confirm,
+        !confirm.value ? "Type your password again."
+        : confirm.value !== password.value ? "The two passwords don't match."
+        : ""),
+      setError(terms, terms.checked ? "" : "Tick this box to create an account."),
+    ].every(Boolean);
+
+    if (!ok) return focusFirstError(createForm);
+
+    const firstName = name.value.trim().split(" ")[0];
+    fakeRequest(createForm, "Creating account…", () => {
+      finish(`Welcome to Wandr, ${firstName}`,
+        `Your account is ready. We've sent a confirmation link to ${email.value.trim()}.`);
+    });
+  });
+
+
+  // --- Forgot password ------------------------------------------------------------
+  $("[data-forgot]").addEventListener("click", () => {
+    openDialog({
+      title: "Reset your password",
+      submitLabel: "Send reset link",
+      body: `
+        <p>Enter the email you signed up with and we'll send you a link to choose a new password.</p>
+        <p class="field">
+          <label class="field__label" for="rs-email">Email</label>
+          <input class="field__input" id="rs-email" name="email" type="email" required
+                 value="${escapeHTML($("#si-email").value.trim())}">
+        </p>`,
+      onSubmit(form) {
+        toast(`Reset link sent to ${form.elements.email.value.trim()}.`);
+      },
+    });
+  });
+
+
+  // --- Google ---------------------------------------------------------------------
+  $("[data-google]").addEventListener("click", () => {
+    toast("Google sign-in isn't connected yet. Use your email for now.");
+  });
 })();

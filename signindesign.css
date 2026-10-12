@@ -1,0 +1,345 @@
+/* ==========================================================================
+   SIGN IN PAGE
+   Styles unique to signin.html — the photo panel, tabs, password box,
+   strength checklist and the "done" message. Tokens, fields, checkboxes and
+   buttons come from base.css, loaded before this file.
+   ========================================================================== */
+
+/* Two equal columns that fill the whole window: photo left, form right.
+   minmax(0, 1fr) instead of 1fr lets each column shrink below the width of
+   its content, so a long word can't push the page sideways. */
+.auth {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+
+/* --------------------------------------------------------------------------
+   PHOTO PANEL
+   The image is position: absolute and fills the panel; the text sits on top
+   of it. The ::after layer is a dark fade so white text stays readable on
+   any photo.
+   -------------------------------------------------------------------------- */
+.auth__visual {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--ink);
+}
+
+.auth__visual > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.auth__visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* dark at the bottom for the big line, a little dark at the top for the
+     logo, clear in the middle so the photo shows */
+  background: linear-gradient(to bottom,
+    rgba(26, 26, 24, .45) 0%,
+    rgba(26, 26, 24, 0) 22%,
+    rgba(26, 26, 24, 0) 45%,
+    rgba(26, 26, 24, .85) 100%);
+}
+
+.auth__visual-text {
+  position: relative;        /* sits above the ::after fade */
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 40px 44px;
+  color: #fff;
+}
+
+.logo--light { color: #fff; }
+
+.auth__quote {
+  max-width: 16ch;
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.auth__stats {
+  margin-top: 12px;
+  font-size: 14px;
+  opacity: .85;
+}
+
+
+/* --------------------------------------------------------------------------
+   FORM PANEL
+   -------------------------------------------------------------------------- */
+.auth__panel {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 40px clamp(20px, 5vw, 56px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth__back {
+  align-self: flex-start;
+  margin-bottom: 28px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.auth__back:hover { color: var(--accent); }
+
+.auth__title {
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.auth__lead {
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+
+/* --- tabs: a pill-shaped track with the chosen tab raised out of it --- */
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 24px 0 20px;
+  padding: 4px;
+  background-color: #ECE5D9;
+  border-radius: 999px;
+}
+
+.tab {
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color .18s ease, color .18s ease;
+}
+
+.tab[aria-selected="true"] {
+  color: var(--ink);
+  background-color: var(--surface);
+  box-shadow: 0 1px 3px rgba(26, 26, 24, .12);
+}
+
+
+/* --- the forms --- */
+.auth__form {
+  display: grid;
+  gap: 16px;
+}
+
+/* Label on the left, "Forgot password?" on the right, same line. */
+.field__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.field__row .field__label { margin-bottom: 5px; }
+
+.auth__forgot {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+
+/* --- password box with the Show / Hide button inside it --- */
+.password {
+  position: relative;
+  display: block;
+}
+
+.password .field__input { padding-right: 64px; }   /* text never runs under the button */
+
+.password__toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  padding: 6px 9px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.password__toggle:hover { color: var(--ink); background-color: var(--cream); }
+
+
+/* --- error messages: app.js adds these under a field when it's wrong --- */
+.field__error {
+  display: block;
+  margin-top: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent-dk);
+}
+
+.field__input[aria-invalid="true"] { border-color: var(--accent-dk); }
+
+
+/* --- password strength: a bar that fills, and a checklist that ticks --- */
+.meter {
+  display: block;
+  height: 4px;
+  margin-top: 10px;
+  overflow: hidden;
+  background-color: var(--line);
+  border-radius: 4px;
+}
+
+.meter > span {
+  display: block;
+  width: 0;               /* app.js sets 33%, 66% or 100% */
+  height: 100%;
+  background-color: var(--accent);
+  transition: width .2s ease, background-color .2s ease;
+}
+
+.meter[data-level="3"] > span { background-color: var(--tag-ink); }
+
+.rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+.rules li::before { content: "○ "; }
+
+.rules li.is-met { color: var(--tag-ink); font-weight: 600; }
+.rules li.is-met::before { content: "✓ "; }
+
+
+/* --- buttons --- */
+.auth__submit {
+  width: 100%;
+  margin-top: 4px;
+  padding: 12px;
+  text-align: center;
+}
+
+/* While "signing in", the button is disabled and fades a little. */
+.btn:disabled {
+  opacity: .7;
+  cursor: progress;
+}
+
+/* A line with "or" in the middle: two flexible ::before / ::after lines
+   either side of the text. */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-color: var(--line);
+}
+
+/* .btn.auth__google (two classes) so it outranks base.css's outlined-button
+   rule, which would otherwise make the background transparent. */
+.btn.auth__google {
+  width: 100%;
+  padding: 11px;
+  text-align: center;
+  border-color: var(--line);
+  background-color: var(--surface);
+}
+
+.btn.auth__google:hover { border-color: var(--ink); }
+
+.auth__note {
+  margin-top: 16px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+
+/* --- done message --- */
+.auth__done { outline: none; }
+
+.auth__done-mark {
+  width: 52px;
+  height: 52px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--tag-ink);
+  background-color: var(--tag-bg);
+  border-radius: 50%;
+}
+
+.auth__done-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+
+/* --------------------------------------------------------------------------
+   PHONES AND SMALL TABLETS
+   One column. The photo becomes a short banner above the form.
+   -------------------------------------------------------------------------- */
+@media (max-width: 860px) {
+  .auth { grid-template-columns: 1fr; }
+
+  .auth__visual { min-height: 190px; }
+
+  .auth__visual-text { padding: 18px 20px 22px; }
+
+  .auth__quote { font-size: 22px; max-width: 20ch; }
+
+  .auth__stats { margin-top: 6px; font-size: 13px; }
+
+  .auth__panel {
+    justify-content: flex-start;
+    padding: 24px 20px 48px;
+  }
+
+  .auth__back { margin-bottom: 20px; }
+}

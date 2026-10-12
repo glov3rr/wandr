@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in — Wandr</title>
+
+  <link rel="icon" type="image/png" href="Images/favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="base.css">
+
+  <link rel="stylesheet" href="signindesign.css">
+
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+
+  <!-- No site header or footer on this page: the only job here is signing
+       in, so everything else steps out of the way. The logo still links home. -->
+  <main class="auth">
+
+    <!-- ============ PHOTO PANEL ============
+         Decoration only, so the image has alt="". On phones it shrinks to a
+         short banner across the top. -->
+    <aside class="auth__visual">
+      <img src="Images/kakum 1.jpeg" alt="">
+      <div class="auth__visual-text">
+        <a class="logo logo--light" href="home.html">
+          <img src="Images/apple-touch-icon.png" alt="" width="30" height="30">
+          <span>Wandr.</span>
+        </a>
+        <div>
+          <p class="auth__quote">Plan Kakum, Cape Coast and the Volta in one trip.</p>
+          <p class="auth__stats">11 attractions · 6 stays · 1,240 travellers</p>
+        </div>
+      </div>
+    </aside>
+
+
+    <!-- ============ FORM PANEL ============ -->
+    <section class="auth__panel">
+
+      <a class="auth__back" href="home.html">‹ Back to home</a>
+
+      <!-- Everything inside this div is swapped for the "done" message
+           once you sign in. -->
+      <div data-auth-forms>
+
+        <!-- app.js changes these two lines when you switch tabs. -->
+        <h1 class="auth__title" data-auth-title>Welcome back</h1>
+        <p class="auth__lead" data-auth-lead>Sign in to see your saved trips and bookings.</p>
+
+        <!-- ---- TABS ----
+             role="tablist" / "tab" / "tabpanel" tell screen readers this is
+             a set of tabs. aria-selected marks the open one; aria-controls
+             points each tab at the form it shows. -->
+        <div class="tabs" role="tablist" aria-label="Sign in or create an account">
+          <button class="tab" type="button" role="tab" id="tab-signin"
+                  aria-selected="true" aria-controls="panel-signin" data-tab="signin">Sign in</button>
+          <button class="tab" type="button" role="tab" id="tab-create"
+                  aria-selected="false" aria-controls="panel-create" data-tab="create" tabindex="-1">Create account</button>
+        </div>
+
+
+        <!-- ---- SIGN IN FORM ----
+             novalidate turns off the browser's own pop-up bubbles, so
+             app.js can show its own messages under each field instead. -->
+        <form class="auth__form" id="panel-signin" role="tabpanel" aria-labelledby="tab-signin"
+              novalidate data-auth="signin">
+
+          <p class="field">
+            <label class="field__label" for="si-email">Email</label>
+            <input class="field__input" id="si-email" name="email" type="email"
+                   autocomplete="email" placeholder="ama@example.com">
+          </p>
+
+          <p class="field">
+            <span class="field__row">
+              <label class="field__label" for="si-password">Password</label>
+              <button class="link-btn auth__forgot" type="button" data-forgot>Forgot password?</button>
+            </span>
+            <!-- The Show button sits inside the box, over the right edge. -->
+            <span class="password">
+              <input class="field__input" id="si-password" name="password" type="password"
+                     autocomplete="current-password">
+              <button class="password__toggle" type="button" aria-label="Show password" data-toggle-password>Show</button>
+            </span>
+          </p>
+
+          <label class="check">
+            <input type="checkbox" name="remember" checked> Keep me signed in
+          </label>
+
+          <button class="btn btn--solid auth__submit" type="submit">Sign in</button>
+        </form>
+
+
+        <!-- ---- CREATE ACCOUNT FORM ---- hidden until its tab is picked -->
+        <form class="auth__form" id="panel-create" role="tabpanel" aria-labelledby="tab-create"
+              novalidate data-auth="create" hidden>
+
+          <p class="field">
+            <label class="field__label" for="ca-name">Full name</label>
+            <input class="field__input" id="ca-name" name="name" type="text"
+                   autocomplete="name" placeholder="Ama Mensah">
+          </p>
+
+          <p class="field">
+            <label class="field__label" for="ca-email">Email</label>
+            <input class="field__input" id="ca-email" name="email" type="email"
+                   autocomplete="email" placeholder="ama@example.com">
+          </p>
+
+          <div class="field">
+            <label class="field__label" for="ca-password">Password</label>
+            <span class="password">
+              <input class="field__input" id="ca-password" name="password" type="password"
+                     autocomplete="new-password" aria-describedby="ca-rules">
+              <button class="password__toggle" type="button" aria-label="Show password" data-toggle-password>Show</button>
+            </span>
+            <!-- Strength bar + the three rules. app.js ticks each rule off as
+                 you type, so you know what's missing before you submit. -->
+            <span class="meter" data-meter><span></span></span>
+            <ul class="rules" id="ca-rules">
+              <li data-rule="length">8+ characters</li>
+              <li data-rule="letter">a letter</li>
+              <li data-rule="number">a number</li>
+            </ul>
+          </div>
+
+          <p class="field">
+            <label class="field__label" for="ca-confirm">Confirm password</label>
+            <input class="field__input" id="ca-confirm" name="confirm" type="password"
+                   autocomplete="new-password">
+          </p>
+
+          <div class="field">
+            <label class="check">
+              <input type="checkbox" name="terms" id="ca-terms"> I agree to Wandr's terms and privacy notice
+            </label>
+          </div>
+
+          <button class="btn btn--solid auth__submit" type="submit">Create account</button>
+        </form>
+
+
+        <div class="divider"><span>or</span></div>
+
+        <button class="btn auth__google" type="button" data-google>Continue with Google</button>
+
+        <p class="auth__note">Accounts aren't stored yet. Any email and password will work,
+          and nothing you type leaves this page.</p>
+      </div>
+
+
+      <!-- ---- DONE ----
+           Shown after a successful sign in. tabindex="-1" lets app.js move
+           keyboard focus here so screen readers announce it. -->
+      <div class="auth__done" data-auth-done tabindex="-1" hidden>
+        <p class="auth__done-mark" aria-hidden="true">✓</p>
+        <h1 class="auth__title" data-done-title>You're signed in</h1>
+        <p class="auth__lead" data-done-text></p>
+        <div class="auth__done-actions">
+          <a class="btn btn--solid" href="explore.html">Explore places</a>
+          <a class="btn" href="trips.html">Plan a trip</a>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+</body>
+
+</html>

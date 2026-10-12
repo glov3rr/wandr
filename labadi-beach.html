@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Labadi Beach — Wandr</title>
+
+  <link rel="icon" type="image/png" href="Images/favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="base.css">
+
+  <link rel="stylesheet" href="attractiondesign.css">
+
+  <!-- defer: download the script now, but run it only after the HTML is
+       fully read. Without it, the script would run before the buttons exist. -->
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="logo" href="home.html">
+        <img src="Images/apple-touch-icon.png" alt="" width="30" height="30">
+        <span>Wandr.</span>
+      </a>
+      <nav class="main-nav" id="main-nav">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a class="is-current" href="explore.html">Explore</a></li>
+          <li><a href="trips.html">Trips</a></li>
+          <li><a href="stays.html">Stays</a></li>
+          <li><a href="community.html">Community</a></li>
+        </ul>
+      </nav>
+      <!-- A <button>, not a link: it opens something on this page rather than
+           going to another page. data-dialog tells app.js which one. -->
+      <button class="btn btn--solid" type="button" data-dialog="signup">Sign up</button>
+      <!-- Only shown on phones. aria-expanded tells screen readers whether
+           the menu is open; app.js flips it. -->
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+        <span class="menu-toggle__bars" aria-hidden="true"></span>
+        <span class="visually-hidden">Menu</span>
+      </button>
+    </div>
+  </header>
+
+
+  <main class="page">
+
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="explore.html">Explore</a></li>
+        <li>Greater Accra</li>
+        <li aria-current="page">Labadi Beach</li>
+      </ol>
+    </nav>
+
+
+    <section class="hero">
+      <img class="hero__img" src="Images/labadi beach.jpg" alt="Wide sand beach with palms at Labadi">
+      <div class="hero__bar">
+        <div>
+          <p class="card__tag">Beach</p>
+          <h1 class="hero__title">Labadi Beach</h1>
+          <p class="hero__where">Greater Accra · La, Accra · also called La Pleasure Beach</p>
+        </div>
+        <p class="hero__rating">★ 4.6<span>502 reviews</span></p>
+      </div>
+    </section>
+
+
+    <section class="detail">
+
+      <div class="detail__main">
+
+        <h2 class="detail__heading">About</h2>
+        <p class="prose">Labadi is the busiest beach in Ghana and the most reliably lively stretch of the Accra coast. Weekends bring live highlife and reggae bands, drumming groups, horse riding along the sand and a steady run of food stalls behind the beach.</p>
+        <p class="prose">It is a social beach rather than a quiet one. The surf has a strong undertow and swimming is best kept close to shore. Several hotels along the strip maintain their own sections with loungers and calmer crowds.</p>
+
+        <h2 class="detail__heading">Good to know</h2>
+        <dl class="facts">
+          <div><dt>Getting there</dt><dd>About 20 minutes east of central Accra</dd></div>
+          <div><dt>Entry</dt><dd>A gate fee applies, higher at weekends</dd></div>
+          <div><dt>Weekends</dt><dd>Live music from the afternoon onwards</dd></div>
+          <div><dt>Swimming</dt><dd>Strong undertow — stay near the shore</dd></div>
+          <div><dt>Food</dt><dd>Grilled tilapia and kelewele from the stalls behind the sand</dd></div>
+          <div><dt>Best time</dt><dd>Sunday afternoon for atmosphere, weekday morning for quiet</dd></div>
+        </dl>
+
+        <h2 class="detail__heading">Gallery</h2>
+        <ul class="gallery">
+          <li><button class="gallery__btn" type="button"><img src="Images/labadi beach.jpg" alt="Labadi Beach and the surrounding area"></button></li>
+          <li><button class="gallery__btn" type="button"><img src="Images/kwame nkrumah.jpg" alt="Labadi Beach and the surrounding area"></button></li>
+          <li><button class="gallery__btn" type="button"><img src="Images/shai hills.jpg" alt="Labadi Beach and the surrounding area"></button></li>
+          <li><button class="gallery__btn" type="button"><img src="Images/elmina castle.jpg" alt="Labadi Beach and the surrounding area"></button></li>
+        </ul>
+
+        <h2 class="detail__heading">Where to stay nearby</h2>
+        <ul class="stay-list">
+          <li>
+            <article class="stay">
+              <img class="stay__img" src="Images/labadi beach.jpg" alt="Labadi Beach Hotel">
+              <div class="stay__body">
+                <h3 class="stay__name"><a href="stays.html">Labadi Beach Hotel</a></h3>
+                <p class="stay__where">Labadi, Greater Accra · beachfront</p>
+                <ul class="tags">
+                  <li class="tag">Wi-Fi</li>
+                  <li class="tag">Breakfast</li>
+                  <li class="tag">Parking</li>
+                </ul>
+              </div>
+              <div class="stay__aside">
+                <p class="stay__rating">★ 4.6</p>
+                <p class="stay__price">GHS 1,850<span>/night</span></p>
+                <a class="btn btn--solid" href="stays.html">Book</a>
+              </div>
+            </article>
+          </li>
+        </ul>
+
+      </div>
+
+
+      <aside class="booking">
+        <p class="booking__price">Plan a visit<span>Labadi Beach</span></p>
+
+        <form>
+          <p class="field">
+            <label class="field__label" for="visit-date">Date of visit</label>
+            <input class="field__input" type="date" id="visit-date" name="visit-date" required>
+          </p>
+
+          <p class="field">
+            <label class="field__label" for="adults">Adults</label>
+            <input class="field__input" type="number" id="adults" name="adults" value="2" min="1" max="20">
+          </p>
+
+          <p class="field">
+            <label class="field__label" for="students">Students</label>
+            <input class="field__input" type="number" id="students" name="students" value="0" min="0" max="20">
+          </p>
+
+          <button class="btn btn--solid booking__cta" type="submit">Add to trip</button>
+          <button class="btn booking__cta" type="button" aria-pressed="false" data-save>Save for later</button>
+        </form>
+
+        <dl class="booking__total">
+          <div><dt>Region</dt><dd>Greater Accra</dd></div>
+          <div><dt>Category</dt><dd>Beach</dd></div>
+          <div class="booking__grand"><dt>Rating</dt><dd>★ 4.6</dd></div>
+        </dl>
+
+        <p class="booking__note">Entry fees and opening hours change often. Confirm
+          directly with the site before you travel.</p>
+      </aside>
+
+    </section>
+
+
+    <section class="related">
+      <div class="section-head">
+        <h2 class="section-head__title">Nearby attractions</h2>
+        <a class="section-head__link" href="explore.html#labadi">See on map</a>
+      </div>
+
+      <ul class="card-grid">
+        <li>
+          <article class="card">
+            <img class="card__img" src="Images/kwame nkrumah.jpg" alt="Kwame Nkrumah Memorial Park in Accra">
+            <div class="card__body">
+              <p class="card__tag">History</p>
+              <h3 class="card__title"><a href="kwame-nkrumah.html">Kwame Nkrumah Memorial Park</a></h3>
+              <p class="card__region">Greater Accra</p>
+              <p class="card__rating">4.6</p>
+            </div>
+          </article>
+        </li>
+        <li>
+          <article class="card">
+            <img class="card__img" src="Images/shai hills.jpg" alt="Rock outcrops rising from grassland at Shai Hills">
+            <div class="card__body">
+              <p class="card__tag">Wildlife</p>
+              <h3 class="card__title"><a href="shai-hills.html">Shai Hills Resource Reserve</a></h3>
+              <p class="card__region">Greater Accra</p>
+              <p class="card__rating">4.7</p>
+            </div>
+          </article>
+        </li>
+        <li>
+          <article class="card">
+            <img class="card__img" src="Images/elmina castle.jpg" alt="Elmina Castle seen across the harbour">
+            <div class="card__body">
+              <p class="card__tag">History</p>
+              <h3 class="card__title"><a href="elmina-castle.html">Elmina Castle</a></h3>
+              <p class="card__region">Central Region</p>
+              <p class="card__rating">4.6</p>
+            </div>
+          </article>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p class="site-footer__line">Wandr — travel in Ghana, planned in one place.</p>
+      <nav>
+        <ul class="site-footer__nav">
+          <li><button class="link-btn" type="button" data-dialog="about">About</button></li>
+          <li><button class="link-btn" type="button" data-dialog="contact">Contact</button></li>
+          <li><button class="link-btn" type="button" data-dialog="privacy">Privacy</button></li>
+        </ul>
+      </nav>
+      <p class="site-footer__copy">&copy; 2026 Wandr.</p>
+    </div>
+  </footer>
+
+</body>
+
+</html>

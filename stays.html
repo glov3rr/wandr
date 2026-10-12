@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wandr — Places to stay</title>
+
+  <link rel="icon" type="image/png" href="Images/favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="base.css">
+
+  <link rel="stylesheet" href="staysdesign.css">
+
+  <!-- defer: download the script now, but run it only after the HTML is
+       fully read. Without it, the script would run before the buttons exist. -->
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="logo" href="home.html">
+        <img src="Images/apple-touch-icon.png" alt="" width="30" height="30">
+        <span>Wandr.</span>
+      </a>
+      <nav class="main-nav" id="main-nav">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a href="explore.html">Explore</a></li>
+          <li><a href="trips.html">Trips</a></li>
+          <li><a class="is-current" href="stays.html">Stays</a></li>
+          <li><a href="community.html">Community</a></li>
+        </ul>
+      </nav>
+      <!-- A <button>, not a link: it opens something on this page rather than
+           going to another page. data-dialog tells app.js which one. -->
+      <button class="btn btn--solid" type="button" data-dialog="signup">Sign up</button>
+      <!-- Only shown on phones. aria-expanded tells screen readers whether
+           the menu is open; app.js flips it. -->
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+        <span class="menu-toggle__bars" aria-hidden="true"></span>
+        <span class="visually-hidden">Menu</span>
+      </button>
+    </div>
+  </header>
+
+
+  <main class="page">
+
+    <section class="intro">
+      <p class="intro__greeting">6 properties · Greater Accra, Ashanti, Central, Eastern, Savannah</p>
+      <h1 class="intro__title">Places to stay</h1>
+    </section>
+
+
+    <section class="stays">
+
+      <aside class="filters">
+        <!-- Only visible on phones, where the filters would otherwise push
+             the results a full screen down. -->
+        <button class="btn filters__toggle" type="button" aria-expanded="false" aria-controls="filter-form">Show filters</button>
+        <form id="filter-form" data-stay-filters>
+          <h2 class="filters__title">Filter</h2>
+
+          <p class="field">
+            <label class="field__label" for="region">Region</label>
+            <select class="field__input" id="region" name="region">
+              <option value="">All regions</option>
+              <option value="greater-accra">Greater Accra</option>
+              <option value="ashanti">Ashanti</option>
+              <option value="eastern">Eastern</option>
+              <option value="central">Central</option>
+              <option value="volta">Volta</option>
+              <option value="savannah">Savannah</option>
+            </select>
+          </p>
+
+          <p class="field">
+            <label class="field__label" for="price">Max price per night</label>
+            <input class="field__input field__input--range" type="range"
+                   id="price" name="price" min="200" max="3000" step="50" value="3000">
+            <output class="field__readout" for="price">GHS 3,000+</output>
+          </p>
+
+          <fieldset class="fieldset">
+            <legend class="fieldset__legend">Rating</legend>
+            <div class="check-stack">
+              <label class="check"><input type="radio" name="rating" value="any" checked> Any</label>
+              <label class="check"><input type="radio" name="rating" value="4"> 4.0 and above</label>
+              <label class="check"><input type="radio" name="rating" value="4.5"> 4.5 and above</label>
+            </div>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend class="fieldset__legend">Amenities</legend>
+            <div class="check-stack">
+              <label class="check"><input type="checkbox" name="amenities" value="wifi"> Wi-Fi</label>
+              <label class="check"><input type="checkbox" name="amenities" value="pool"> Pool</label>
+              <label class="check"><input type="checkbox" name="amenities" value="breakfast"> Breakfast</label>
+              <label class="check"><input type="checkbox" name="amenities" value="ac"> Air conditioning</label>
+              <label class="check"><input type="checkbox" name="amenities" value="parking"> Parking</label>
+            </div>
+          </fieldset>
+
+          <div class="filters__actions">
+            <button class="btn btn--solid" type="submit">Apply</button>
+            <button class="btn" type="reset">Reset</button>
+          </div>
+        </form>
+      </aside>
+
+
+      <div class="results">
+
+        <div class="results__bar">
+          <p class="results__count" data-result-count>6 properties</p>
+          <p class="field field--inline">
+            <label class="field__label" for="sort">Sort by</label>
+            <select class="field__input" id="sort" name="sort">
+              <option value="recommended">Recommended</option>
+              <option value="price-low">Price: low to high</option>
+              <option value="price-high">Price: high to low</option>
+              <option value="rating">Rating</option>
+            </select>
+          </p>
+        </div>
+
+        <ul class="stay-list" data-stay-list>
+          <li data-region="greater-accra" data-price="1850" data-rating="4.6" data-amenities="wifi pool breakfast ac">
+            <article class="stay">
+              <img class="stay__img" src="Images/labadihotel.jpg" alt="Labadi Beach Hotel">
+              <div class="stay__body">
+                <h3 class="stay__name"><button class="link-btn" type="button" data-book>Labadi Beach Hotel</button></h3>
+                <p class="stay__where">Labadi, Greater Accra · beachfront</p>
+                <ul class="tags">
+                  <li class="tag">Wi-Fi</li>
+                  <li class="tag">Pool</li>
+                  <li class="tag">Breakfast</li>
+                  <li class="tag">Air conditioning</li>
+                </ul>
+              </div>
+              <div class="stay__aside">
+                <p class="stay__rating">★ 4.6</p>
+                <p class="stay__price">GHS 1,850<span>/night</span></p>
+                <button class="btn btn--solid" type="button" data-book>Book</button>
+              </div>
+            </article>
+          </li>
+          <li data-region="greater-accra" data-price="880" data-rating="4.3" data-amenities="wifi pool parking">
+            <article class="stay">
+              <img class="stay__img" src="Images/tang palace.jpg" alt="Tang Palace Hotel">
+              <div class="stay__body">
+                <h3 class="stay__name"><button class="link-btn" type="button" data-book>Tang Palace Hotel</button></h3>
+                <p class="stay__where">Airport Residential, Greater Accra</p>
+                <ul class="tags">
+                  <li class="tag">Wi-Fi</li>
+                  <li class="tag">Pool</li>
+                  <li class="tag">Parking</li>
+                </ul>
+              </div>
+              <div class="stay__aside">
+                <p class="stay__rating">★ 4.3</p>
+                <p class="stay__price">GHS 880<span>/night</span></p>
+                <button class="btn btn--solid" type="button" data-book>Book</button>
+              </div>
+            </article>
+          </li>
+          <li data-region="ashanti" data-price="940" data-rating="4.4" data-amenities="wifi breakfast ac">
+            <article class="stay">
+              <img class="stay__img" src="Images/golden tulip.jpg" alt="Golden Tulip Kumasi City">
+              <div class="stay__body">
+                <h3 class="stay__name"><button class="link-btn" type="button" data-book>Golden Tulip Kumasi City</button></h3>
+                <p class="stay__where">Kumasi, Ashanti Region</p>
+                <ul class="tags">
+                  <li class="tag">Wi-Fi</li>
+                  <li class="tag">Breakfast</li>
+                  <li class="tag">Air conditioning</li>
+                </ul>
+              </div>
+              <div class="stay__aside">
+                <p class="stay__rating">★ 4.4</p>
+                <p class="stay__price">GHS 940<span>/night</span></p>
+                <button class="btn btn--solid" type="button" data-book>Book</button>
+              </div>
+            </article>
+          </li>
+          <li data-region="central" data-price="760" data-rating="4.2" data-amenities="wifi pool parking">
+            <article class="stay">
+              <img class="stay__img" src="Images/ridge royal.jpg" alt="Ridge Royal Hotel">
+              <div class="stay__body">
+                <h3 class="stay__name"><button class="link-btn" type="button" data-book>Ridge Royal Hotel</button></h3>
+                <p class="stay__where">Cape Coast, Central Region</p>
+                <ul class="tags">
+                  <li class="tag">Wi-Fi</li>
+                  <li class="tag">Pool</li>
+                  <li class="tag">Parking</li>
+                </ul>
+              </div>
+              <div class="stay__aside">
+                <p class="stay__rating">★ 4.2</p>
+                <p class="stay__price">GHS 760<span>/night</span></p>
+                <button class="btn btn--solid" type="button" data-book>Book</button>
+              </div>
+            </article>
+          </li>
+          <li data-region="eastern" data-price="2100" data-rating="4.7" data-amenities="wifi pool breakfast">
+            <article class="stay">
+              <img class="stay__img" src="Images/royal senkyi.jpeg" alt="The Royal Senchi">
+              <div class="stay__body">
+                <h3 class="stay__name"><button class="link-btn" type="button" data-book>The Royal Senchi</button></h3>
+                <p class="stay__where">Akosombo, Eastern Region · riverside</p>
+                <ul class="tags">
+                  <li class="tag">Wi-Fi</li>
+                  <li class="tag">Pool</li>
+                  <li class="tag">Breakfast</li>
+                </ul>
+              </div>
+              <div class="stay__aside">
+                <p class="stay__rating">★ 4.7</p>
+                <p class="stay__price">GHS 2,100<span>/night</span></p>
+                <button class="btn btn--solid" type="button" data-book>Book</button>
+              </div>
+            </article>
+          </li>
+          <li data-region="savannah" data-price="2650" data-rating="4.8" data-amenities="pool breakfast">
+            <article class="stay">
+              <img class="stay__img" src="Images/zaina lodge.webp" alt="Zaina Lodge">
+              <div class="stay__body">
+                <h3 class="stay__name"><button class="link-btn" type="button" data-book>Zaina Lodge</button></h3>
+                <p class="stay__where">Mole National Park, Savannah Region</p>
+                <ul class="tags">
+                  <li class="tag">Pool</li>
+                  <li class="tag">Breakfast</li>
+                  <li class="tag">Game drives</li>
+                </ul>
+              </div>
+              <div class="stay__aside">
+                <p class="stay__rating">★ 4.8</p>
+                <p class="stay__price">GHS 2,650<span>/night</span></p>
+                <button class="btn btn--solid" type="button" data-book>Book</button>
+              </div>
+            </article>
+          </li>
+        </ul>
+        <p class="empty" hidden>No stays match these filters. Raise the price limit or untick an amenity.</p>
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p class="site-footer__line">Wandr — travel in Ghana, planned in one place.</p>
+      <nav>
+        <ul class="site-footer__nav">
+          <li><button class="link-btn" type="button" data-dialog="about">About</button></li>
+          <li><button class="link-btn" type="button" data-dialog="contact">Contact</button></li>
+          <li><button class="link-btn" type="button" data-dialog="privacy">Privacy</button></li>
+        </ul>
+      </nav>
+      <p class="site-footer__copy">&copy; 2026 Wandr.</p>
+    </div>
+  </footer>
+
+</body>
+
+</html>

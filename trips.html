@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wandr — Your trips</title>
+
+  <link rel="icon" type="image/png" href="Images/favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="base.css">
+
+  <link rel="stylesheet" href="tripsdesign.css">
+
+  <!-- defer: download the script now, but run it only after the HTML is
+       fully read. Without it, the script would run before the buttons exist. -->
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="logo" href="home.html">
+        <img src="Images/apple-touch-icon.png" alt="" width="30" height="30">
+        <span>Wandr.</span>
+      </a>
+      <nav class="main-nav" id="main-nav">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a href="explore.html">Explore</a></li>
+          <li><a class="is-current" href="trips.html">Trips</a></li>
+          <li><a href="stays.html">Stays</a></li>
+          <li><a href="community.html">Community</a></li>
+        </ul>
+      </nav>
+      <!-- A <button>, not a link: it opens something on this page rather than
+           going to another page. data-dialog tells app.js which one. -->
+      <button class="btn btn--solid" type="button" data-dialog="signup">Sign up</button>
+      <!-- Only shown on phones. aria-expanded tells screen readers whether
+           the menu is open; app.js flips it. -->
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+        <span class="menu-toggle__bars" aria-hidden="true"></span>
+        <span class="visually-hidden">Menu</span>
+      </button>
+    </div>
+  </header>
+
+
+  <main class="page">
+
+    <section class="intro">
+      <p class="intro__greeting" data-trip-count>2 saved, 1 upcoming</p>
+      <h1 class="intro__title">Your trips</h1>
+    </section>
+
+
+    <section class="saved">
+      <div class="section-head">
+        <h2 class="section-head__title">Saved trips</h2>
+        <a class="section-head__link" href="#plan">Plan a new trip</a>
+      </div>
+
+      <ul class="trip-list" data-trip-list>
+        <li>
+          <article class="trip" data-stops="kakum,cape-coast,elmina,labadi">
+            <div class="trip__head">
+              <h3 class="trip__name"><button class="link-btn" type="button" data-trip-details>Coast &amp; Castles Weekend</button></h3>
+              <p class="trip__status trip__status--booked">Booked</p>
+            </div>
+            <p class="trip__dates">14 – 16 February 2027 · Central Region</p>
+            <dl class="trip__stats">
+              <div><dt>Days</dt><dd>3</dd></div>
+              <div><dt>Stops</dt><dd>4</dd></div>
+              <div><dt>Travellers</dt><dd>2</dd></div>
+              <div><dt>Total</dt><dd>GHS 3,700</dd></div>
+            </dl>
+            <ul class="tags">
+              <li class="tag">Kakum</li>
+              <li class="tag">Cape Coast Castle</li>
+              <li class="tag">Elmina Castle</li>
+              <li class="tag">Labadi Beach</li>
+            </ul>
+          </article>
+        </li>
+
+        <li>
+          <article class="trip" data-stops="wli,afadjato,lake-volta">
+            <div class="trip__head">
+              <h3 class="trip__name"><button class="link-btn" type="button" data-trip-details>Volta Highlands</button></h3>
+              <p class="trip__status trip__status--draft">Draft</p>
+            </div>
+            <p class="trip__dates">Dates not set · Volta Region</p>
+            <dl class="trip__stats">
+              <div><dt>Days</dt><dd>4</dd></div>
+              <div><dt>Stops</dt><dd>3</dd></div>
+              <div><dt>Travellers</dt><dd>1</dd></div>
+              <div><dt>Total</dt><dd>—</dd></div>
+            </dl>
+            <ul class="tags">
+              <li class="tag">Wli Waterfalls</li>
+              <li class="tag">Mount Afadjato</li>
+              <li class="tag">Lake Volta</li>
+            </ul>
+          </article>
+        </li>
+      </ul>
+    </section>
+
+
+    <section class="packages">
+      <div class="section-head">
+        <h2 class="section-head__title">Ready-made packages</h2>
+      </div>
+
+      <ul class="card-grid">
+        <li>
+          <article class="card">
+            <img class="card__img" src="Images/cape coast castle.jpeg" alt="Cape Coast Castle">
+            <div class="card__body">
+              <p class="card__tag">3 days</p>
+              <h3 class="card__title">Coast &amp; Castles</h3>
+              <p class="card__region">Central Region · 4 stops</p>
+              <p class="card__price">GHS 3,700</p>
+              <!-- data-stops lists the attractions to tick in the form below -->
+              <button class="btn btn--solid card__cta" type="button"
+                      data-package="Coast &amp; Castles" data-stops="kakum,cape-coast,elmina,labadi">Book this package</button>
+            </div>
+          </article>
+        </li>
+
+        <li>
+          <article class="card">
+            <img class="card__img" src="Images/wli waterfalls.jpeg" alt="Wli Waterfalls">
+            <div class="card__body">
+              <p class="card__tag">4 days</p>
+              <h3 class="card__title">Volta Highlands</h3>
+              <p class="card__region">Volta Region · 3 stops</p>
+              <p class="card__price">GHS 2,950</p>
+              <!-- data-stops lists the attractions to tick in the form below -->
+              <button class="btn btn--solid card__cta" type="button"
+                      data-package="Volta Highlands" data-stops="wli,afadjato,lake-volta">Book this package</button>
+            </div>
+          </article>
+        </li>
+
+        <li>
+          <article class="card">
+            <img class="card__img" src="Images/mole national park 1.jpeg" alt="Mole National Park">
+            <div class="card__body">
+              <p class="card__tag">5 days</p>
+              <h3 class="card__title">Northern Safari</h3>
+              <p class="card__region">Savannah Region · 3 stops</p>
+              <p class="card__price">GHS 5,200</p>
+              <!-- data-stops lists the attractions to tick in the form below -->
+              <button class="btn btn--solid card__cta" type="button"
+                      data-package="Northern Safari" data-stops="mole">Book this package</button>
+            </div>
+          </article>
+        </li>
+      </ul>
+    </section>
+
+
+    <section class="plan" id="plan">
+      <div class="section-head">
+        <h2 class="section-head__title">Plan a new trip</h2>
+      </div>
+
+      <form class="form" data-trip-form novalidate>
+
+        <div class="form__grid">
+
+          <p class="field field--wide">
+            <label class="field__label" for="trip-name">Trip name</label>
+            <input class="field__input" type="text" id="trip-name" name="trip-name"
+                   placeholder="Coast &amp; Castles Weekend" required>
+          </p>
+
+          <p class="field">
+            <label class="field__label" for="start">Start date</label>
+            <input class="field__input" type="date" id="start" name="start" required>
+          </p>
+
+          <p class="field">
+            <label class="field__label" for="end">End date</label>
+            <input class="field__input" type="date" id="end" name="end" required>
+          </p>
+
+          <p class="field">
+            <label class="field__label" for="travellers">Travellers</label>
+            <input class="field__input" type="number" id="travellers" name="travellers"
+                   value="2" min="1" max="20">
+          </p>
+
+          <p class="field">
+            <label class="field__label" for="budget">Budget (GHS)</label>
+            <input class="field__input" type="number" id="budget" name="budget"
+                   placeholder="3000" min="0" step="50">
+          </p>
+
+        </div>
+
+
+        <fieldset class="fieldset">
+          <legend class="fieldset__legend">Attractions</legend>
+          <div class="check-grid">
+            <label class="check"><input type="checkbox" name="attractions" value="kakum"> Kakum National Park</label>
+            <label class="check"><input type="checkbox" name="attractions" value="cape-coast"> Cape Coast Castle</label>
+            <label class="check"><input type="checkbox" name="attractions" value="elmina"> Elmina Castle</label>
+            <label class="check"><input type="checkbox" name="attractions" value="nkrumah"> Kwame Nkrumah Memorial</label>
+            <label class="check"><input type="checkbox" name="attractions" value="mole"> Mole National Park</label>
+            <label class="check"><input type="checkbox" name="attractions" value="aburi"> Aburi Botanical Gardens</label>
+            <label class="check"><input type="checkbox" name="attractions" value="wli"> Wli Waterfalls</label>
+            <label class="check"><input type="checkbox" name="attractions" value="shai"> Shai Hills</label>
+            <label class="check"><input type="checkbox" name="attractions" value="labadi"> Labadi Beach</label>
+            <label class="check"><input type="checkbox" name="attractions" value="afadjato"> Mount Afadjato</label>
+            <label class="check"><input type="checkbox" name="attractions" value="lake-volta"> Lake Volta</label>
+          </div>
+        </fieldset>
+
+
+        <fieldset class="fieldset">
+          <legend class="fieldset__legend">Pace</legend>
+          <div class="check-grid check-grid--3">
+            <label class="check"><input type="radio" name="pace" value="easy" checked> Easy — 1 stop a day</label>
+            <label class="check"><input type="radio" name="pace" value="balanced"> Balanced — 2 stops a day</label>
+            <label class="check"><input type="radio" name="pace" value="packed"> Packed — 3+ stops a day</label>
+          </div>
+        </fieldset>
+
+
+        <p class="field field--wide">
+          <label class="field__label" for="notes">Notes</label>
+          <textarea class="field__input" id="notes" name="notes" rows="4"
+                    placeholder="Anything the guide should know — dietary needs, mobility, budget limits."></textarea>
+        </p>
+
+        <div class="form__actions">
+          <button class="btn btn--solid" type="submit">Save trip</button>
+          <button class="btn" type="reset">Clear</button>
+        </div>
+
+      </form>
+    </section>
+
+  </main>
+
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p class="site-footer__line">Wandr — travel in Ghana, planned in one place.</p>
+      <nav>
+        <ul class="site-footer__nav">
+          <li><button class="link-btn" type="button" data-dialog="about">About</button></li>
+          <li><button class="link-btn" type="button" data-dialog="contact">Contact</button></li>
+          <li><button class="link-btn" type="button" data-dialog="privacy">Privacy</button></li>
+        </ul>
+      </nav>
+      <p class="site-footer__copy">&copy; 2026 Wandr.</p>
+    </div>
+  </footer>
+
+</body>
+
+</html>

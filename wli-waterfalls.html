@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wli Waterfalls — Wandr</title>
+
+  <link rel="icon" type="image/png" href="Images/favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="base.css">
+
+  <link rel="stylesheet" href="attractiondesign.css">
+
+  <!-- defer: download the script now, but run it only after the HTML is
+       fully read. Without it, the script would run before the buttons exist. -->
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="logo" href="home.html">
+        <img src="Images/apple-touch-icon.png" alt="" width="30" height="30">
+        <span>Wandr.</span>
+      </a>
+      <nav class="main-nav" id="main-nav">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a class="is-current" href="explore.html">Explore</a></li>
+          <li><a href="trips.html">Trips</a></li>
+          <li><a href="stays.html">Stays</a></li>
+          <li><a href="community.html">Community</a></li>
+        </ul>
+      </nav>
+      <!-- A <button>, not a link: it opens something on this page rather than
+           going to another page. data-dialog tells app.js which one. -->
+      <button class="btn btn--solid" type="button" data-dialog="signup">Sign up</button>
+      <!-- Only shown on phones. aria-expanded tells screen readers whether
+           the menu is open; app.js flips it. -->
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+        <span class="menu-toggle__bars" aria-hidden="true"></span>
+        <span class="visually-hidden">Menu</span>
+      </button>
+    </div>
+  </header>
+
+
+  <main class="page">
+
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="explore.html">Explore</a></li>
+        <li>Volta Region</li>
+        <li aria-current="page">Wli Waterfalls</li>
+      </ol>
+    </nav>
+
+
+    <section class="hero">
+      <img class="hero__img" src="Images/wli waterfalls.jpeg" alt="Water falling down a cliff face into a pool at Wli">
+      <div class="hero__bar">
+        <div>
+          <p class="card__tag">Nature</p>
+          <h1 class="hero__title">Wli Waterfalls</h1>
+          <p class="hero__where">Volta Region · Agumatsa Reserve · near Hohoe</p>
+        </div>
+        <p class="hero__rating">★ 4.8<span>221 reviews</span></p>
+      </div>
+    </section>
+
+
+    <section class="detail">
+
+      <div class="detail__main">
+
+        <h2 class="detail__heading">About</h2>
+        <p class="prose">Wli is the highest waterfall in Ghana and among the highest in West Africa, dropping in stages down a cliff on the Togo border. The lower falls are reached by a level 45-minute walk through the Agumatsa reserve, crossing the river several times on footbridges.</p>
+        <p class="prose">The upper falls take a much harder climb of two to three hours up the escarpment, and reward it with a view over both countries. Thousands of fruit bats roost on the cliff face above the lower pool, and the sound carries a long way.</p>
+
+        <h2 class="detail__heading">Good to know</h2>
+        <dl class="facts">
+          <div><dt>Getting there</dt><dd>About 20 km from Hohoe, then a short drive to the reserve gate</dd></div>
+          <div><dt>Lower falls</dt><dd>45 minutes each way, mostly flat</dd></div>
+          <div><dt>Upper falls</dt><dd>Two to three hours each way, steep and unshaded in places</dd></div>
+          <div><dt>Guides</dt><dd>Compulsory, arranged at the gate</dd></div>
+          <div><dt>Swimming</dt><dd>Allowed in the lower pool</dd></div>
+          <div><dt>Best time</dt><dd>Rainy season for volume, dry season for the trail</dd></div>
+        </dl>
+
+        <h2 class="detail__heading">Gallery</h2>
+        <ul class="gallery">
+          <li><button class="gallery__btn" type="button"><img src="Images/wli waterfalls.jpeg" alt="Wli Waterfalls and the surrounding area"></button></li>
+          <li><button class="gallery__btn" type="button"><img src="Images/afadjato.jpeg" alt="Wli Waterfalls and the surrounding area"></button></li>
+          <li><button class="gallery__btn" type="button"><img src="Images/Lake-Volta-jpg.webp" alt="Wli Waterfalls and the surrounding area"></button></li>
+          <li><button class="gallery__btn" type="button"><img src="Images/aburi.jpg" alt="Wli Waterfalls and the surrounding area"></button></li>
+        </ul>
+
+        <h2 class="detail__heading">Where to stay nearby</h2>
+        <ul class="stay-list">
+          <li>
+            <article class="stay">
+              <img class="stay__img" src="Images/Lake-Volta-jpg.webp" alt="The Royal Senchi">
+              <div class="stay__body">
+                <h3 class="stay__name"><a href="stays.html">The Royal Senchi</a></h3>
+                <p class="stay__where">Akosombo, Eastern Region · 130 km away</p>
+                <ul class="tags">
+                  <li class="tag">Wi-Fi</li>
+                  <li class="tag">Breakfast</li>
+                  <li class="tag">Parking</li>
+                </ul>
+              </div>
+              <div class="stay__aside">
+                <p class="stay__rating">★ 4.7</p>
+                <p class="stay__price">GHS 2,100<span>/night</span></p>
+                <a class="btn btn--solid" href="stays.html">Book</a>
+              </div>
+            </article>
+          </li>
+        </ul>
+
+      </div>
+
+
+      <aside class="booking">
+        <p class="booking__price">Plan a visit<span>Wli Waterfalls</span></p>
+
+        <form>
+          <p class="field">
+            <label class="field__label" for="visit-date">Date of visit</label>
+            <input class="field__input" type="date" id="visit-date" name="visit-date" required>
+          </p>
+
+          <p class="field">
+            <label class="field__label" for="adults">Adults</label>
+            <input class="field__input" type="number" id="adults" name="adults" value="2" min="1" max="20">
+          </p>
+
+          <p class="field">
+            <label class="field__label" for="students">Students</label>
+            <input class="field__input" type="number" id="students" name="students" value="0" min="0" max="20">
+          </p>
+
+          <button class="btn btn--solid booking__cta" type="submit">Add to trip</button>
+          <button class="btn booking__cta" type="button" aria-pressed="false" data-save>Save for later</button>
+        </form>
+
+        <dl class="booking__total">
+          <div><dt>Region</dt><dd>Volta Region</dd></div>
+          <div><dt>Category</dt><dd>Nature</dd></div>
+          <div class="booking__grand"><dt>Rating</dt><dd>★ 4.8</dd></div>
+        </dl>
+
+        <p class="booking__note">Entry fees and opening hours change often. Confirm
+          directly with the site before you travel.</p>
+      </aside>
+
+    </section>
+
+
+    <section class="related">
+      <div class="section-head">
+        <h2 class="section-head__title">Nearby attractions</h2>
+        <a class="section-head__link" href="explore.html#wli">See on map</a>
+      </div>
+
+      <ul class="card-grid">
+        <li>
+          <article class="card">
+            <img class="card__img" src="Images/afadjato.jpeg" alt="Mount Afadja rising above the treeline">
+            <div class="card__body">
+              <p class="card__tag">Nature</p>
+              <h3 class="card__title"><a href="afadjato.html">Mount Afadja</a></h3>
+              <p class="card__region">Volta Region</p>
+              <p class="card__rating">4.9</p>
+            </div>
+          </article>
+        </li>
+        <li>
+          <article class="card">
+            <img class="card__img" src="Images/Lake-Volta-jpg.webp" alt="Boats on the water at Lake Volta">
+            <div class="card__body">
+              <p class="card__tag">Nature</p>
+              <h3 class="card__title"><a href="lake-volta.html">Lake Volta</a></h3>
+              <p class="card__region">Volta Region</p>
+              <p class="card__rating">4.8</p>
+            </div>
+          </article>
+        </li>
+        <li>
+          <article class="card">
+            <img class="card__img" src="Images/aburi.jpg" alt="Terraced lawns and mature trees at Aburi Botanical Gardens">
+            <div class="card__body">
+              <p class="card__tag">Nature</p>
+              <h3 class="card__title"><a href="aburi.html">Aburi Botanical Gardens</a></h3>
+              <p class="card__region">Eastern Region</p>
+              <p class="card__rating">4.5</p>
+            </div>
+          </article>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p class="site-footer__line">Wandr — travel in Ghana, planned in one place.</p>
+      <nav>
+        <ul class="site-footer__nav">
+          <li><button class="link-btn" type="button" data-dialog="about">About</button></li>
+          <li><button class="link-btn" type="button" data-dialog="contact">Contact</button></li>
+          <li><button class="link-btn" type="button" data-dialog="privacy">Privacy</button></li>
+        </ul>
+      </nav>
+      <p class="site-footer__copy">&copy; 2026 Wandr.</p>
+    </div>
+  </footer>
+
+</body>
+
+</html>

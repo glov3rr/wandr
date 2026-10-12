@@ -1,0 +1,996 @@
+/* ==========================================================================
+   WANDR — base.css
+   Loaded by every page, before that page's own stylesheet.
+   Order: tokens → reset → header → buttons → layout → components → responsive.
+
+   This file used to be copy-pasted at the top of six separate stylesheets
+   (one per page) — six copies of the same ~450 lines. It now lives once,
+   here. Each page links to base.css first, then its own stylesheet for
+   whatever is unique to that page:
+     <link rel="stylesheet" href="base.css">
+     <link rel="stylesheet" href="exploredesign.css">
+   home.html has nothing left that's unique to it, so it links base.css
+   alone.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. DESIGN TOKENS
+   Define a colour once, use it everywhere. Change --accent and the whole
+   site recolours.
+   -------------------------------------------------------------------------- */
+:root {
+  --cream:     #F5F0E7;
+  --surface:   #FFFFFF;
+  --ink:       #1A1A18;
+  --ink-soft:  #6B6560;
+  --line:      #E4DDD1;
+  --accent:    #E8552F;
+  --accent-dk: #C9431F;
+  --tag-bg:    #E4F0E6;
+  --tag-ink:   #2C6E49;
+
+  --radius:    14px;
+  --gap:       20px;
+  --max:       1080px;
+}
+
+
+/* --------------------------------------------------------------------------
+   2. RESET
+   Browsers ship default margins that disagree with each other. Wipe them.
+   -------------------------------------------------------------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;   /* width includes padding + border */
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background-color: var(--cream);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  display: block;    /* removes the mystery gap under images */
+  max-width: 100%;
+}
+
+/* Covers <ol> too — the breadcrumbs are an ordered list and would
+   otherwise render with 1. 2. 3. numbers. */
+ul, ol { list-style: none; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+
+/* --------------------------------------------------------------------------
+   3. HEADER
+   The background spans the window; .site-header__inner centres the content.
+   That split is the most reused layout pattern on the web.
+   -------------------------------------------------------------------------- */
+.site-header {
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.site-header__inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 15px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+}
+
+.logo {
+  display: flex;           /* puts the mark and the word side by side */
+  align-items: center;
+  gap: 8px;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.logo img { border-radius: 8px; }
+
+.main-nav ul {
+  display: flex;
+  gap: 26px;
+}
+
+.main-nav a {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  padding-bottom: 3px;
+  border-bottom: 2px solid transparent;  /* space reserved so hover doesn't shift */
+  transition: color .18s ease;
+}
+
+.main-nav a:hover { color: var(--ink); }
+
+.main-nav .is-current {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+
+/* --------------------------------------------------------------------------
+   4. BUTTONS
+   -------------------------------------------------------------------------- */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;      /* any huge value gives a perfect pill */
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color .18s ease;
+}
+
+.btn--solid {
+  background-color: var(--accent);
+  color: #fff;
+}
+
+.btn--solid:hover {
+  background-color: var(--accent-dk);
+  border-color: var(--accent-dk);
+}
+
+
+/* --------------------------------------------------------------------------
+   5. PAGE SHELL
+   -------------------------------------------------------------------------- */
+.page {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 36px 24px 80px;
+}
+
+/* Spacing between blocks set once, here, instead of on each section. */
+.page > section + section { margin-top: 34px; }
+
+
+/* --------------------------------------------------------------------------
+   6. INTRO
+   -------------------------------------------------------------------------- */
+.intro__greeting {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+
+.intro__title {
+  /* clamp(min, preferred, max): scales with the window, never gets absurd */
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+
+/* --------------------------------------------------------------------------
+   7. SEARCH
+   -------------------------------------------------------------------------- */
+.search__form {
+  display: flex;
+  gap: 10px;
+}
+
+.search__input {
+  flex: 1;                 /* takes the leftover space; button keeps its size */
+  padding: 13px 18px;
+  font: inherit;
+  font-size: 15px;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+}
+
+.search__input::placeholder { color: var(--ink-soft); }
+
+.search__input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+
+/* --------------------------------------------------------------------------
+   8. CATEGORY CHIPS
+   -------------------------------------------------------------------------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.chip {
+  display: inline-block;
+  padding: 8px 17px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  transition: background-color .18s ease, color .18s ease;
+}
+
+.chip:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.chip--active {
+  background-color: var(--ink);
+  border-color: var(--ink);
+  color: var(--cream);
+}
+
+
+/* --------------------------------------------------------------------------
+   9. SECTION HEADINGS
+   -------------------------------------------------------------------------- */
+.section-head {
+  display: flex;
+  align-items: baseline;   /* aligns the text baselines, not the boxes */
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.section-head__title {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.section-head__link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.section-head__link:hover { text-decoration: underline; }
+
+
+/* --------------------------------------------------------------------------
+   10. CARDS
+   One .card definition. Featured stacks it. Nearby flips it sideways with
+   the .card--row modifier. This works only because both sections now use
+   identical markup.
+   -------------------------------------------------------------------------- */
+.card {
+  display: block;          /* .card is an <a> on some pages — <a> is inline
+                               by default, and without this the border
+                               won't wrap the card properly */
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;        /* clips the photo to the rounded corners */
+  height: 100%;            /* every card in a row matches the tallest */
+  transition: transform .2s ease, border-color .2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  border-color: var(--ink);
+}
+
+/* Your images are all different shapes. object-fit: cover fills the box and
+   crops the excess instead of squashing the photo. This is why the inline
+   height="200" width="400" attributes had to go — one rule, all 15 images. */
+.card__img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+}
+
+.card__body {
+  padding: 14px 16px 16px;
+  position: relative;      /* anchor for the rating below */
+}
+
+.card__tag {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: var(--tag-bg);
+  color: var(--tag-ink);
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.card__title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  padding-right: 44px;     /* keeps long names off the rating */
+}
+
+.card__region {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+/* Lifted out of the normal flow, pinned to the top-right of .card__body. */
+.card__rating {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.card__rating::before { content: "★ "; }   /* decoration lives in CSS */
+
+
+/* --------------------------------------------------------------------------
+   11. FEATURED GRID
+   auto-fit + minmax: fit as many 280px columns as will comfortably fit,
+   then share the leftover space. Replaces four media queries.
+   -------------------------------------------------------------------------- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--gap);
+}
+
+
+/* --------------------------------------------------------------------------
+   12. NEARBY LIST
+   -------------------------------------------------------------------------- */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card--row { display: flex; }
+
+.card--row .card__img {
+  width: 132px;
+  height: 116px;           /* fixed box, so portrait photos don't make tall rows */
+  flex-shrink: 0;          /* stops the photo squeezing when a name is long */
+}
+
+.card--row .card__body {
+  flex: 1;
+  padding: 13px 16px;
+}
+
+.card--row .card__tag { margin-bottom: 6px; }
+
+
+/* --------------------------------------------------------------------------
+   13. FOOTER
+   -------------------------------------------------------------------------- */
+.site-footer {
+  border-top: 1px solid var(--line);
+  background-color: var(--surface);
+}
+
+.site-footer__inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 28px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.site-footer__line {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.site-footer__nav {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.site-footer__nav a:hover { color: var(--accent); }
+
+.site-footer__copy {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+
+/* --------------------------------------------------------------------------
+   14. SHARED COMPONENTS
+   Pieces reused by more than one page — amenity tags, form fields, and the
+   hotel card. Used by Trips, Stays, Community and every attraction page
+   (each loads only what it actually needs from here, via the classes it
+   puts in its markup).
+   -------------------------------------------------------------------------- */
+
+/* --- amenity tags (Trips package cards, Stays hotel cards, attraction
+       "where to stay nearby" cards) --- */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-soft);
+}
+
+/* --- form fields (Trips "Plan a trip", Stays filters, attraction
+       booking panel) --- */
+/* Labels are block-level so each sits on its own line above its input. */
+.field { display: block; }
+
+.field--wide { grid-column: 1 / -1; }   /* spans every column */
+
+/* A .field sitting directly in the form (not in the grid) needs its own
+   breathing room — the grid's gap does not reach it. */
+.form > .field { margin-top: 20px; }
+
+.field__label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 5px;
+}
+
+/* One rule for text, date, number and textarea. font: inherit matters —
+   form controls do NOT inherit your body font unless you say so. */
+.field__input {
+  width: 100%;
+  padding: 11px 13px;
+  font: inherit;
+  font-size: 14.5px;
+  color: var(--ink);
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  resize: vertical;          /* textarea drags taller, never wider */
+}
+
+.field__input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.field__input::placeholder { color: var(--dim, #A9A296); }
+
+/* --- grouped controls (Trips "Plan a trip", Stays filter sidebar) --- */
+.fieldset {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px 16px;
+  margin-top: 20px;
+}
+
+.fieldset__legend {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding: 0 6px;
+}
+
+/* The whole label is clickable because the input lives inside it. That is
+   why there's no for="" here — wrapping does the same job. */
+.check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);   /* recolours the native tick/dot */
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* --- hotel card (Stays listing, attraction "where to stay nearby") ---
+       Three parts across: photo, details, price column. The middle
+       grows, the two outsides keep their width. --- */
+.stay-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stay {
+  display: flex;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color .2s ease;
+}
+
+.stay:hover { border-color: var(--ink); }
+
+/* align-self: stretch makes the photo grow to the card's full height, so
+   there is never a white strip under it when the text runs long. */
+.stay__img {
+  width: 210px;
+  align-self: stretch;
+  height: auto;
+  min-height: 168px;
+  object-fit: cover;
+  flex-shrink: 0;      /* the photo never gets squeezed */
+}
+
+.stay__body {
+  flex: 1;             /* takes every spare pixel */
+  padding: 16px 18px;
+  min-width: 0;        /* lets long text wrap instead of forcing the card wide */
+}
+
+.stay__name {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.stay__name a:hover { color: var(--accent); }
+
+.stay__where {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin: 2px 0 10px;
+}
+
+/* Price column: pushed to the bottom so Book sits on the card's baseline. */
+.stay__aside {
+  width: 156px;
+  flex-shrink: 0;
+  padding: 16px 18px;
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  text-align: right;
+}
+
+.stay__rating {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stay__price {
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+/* A <span> inside the price, styled down. Keeps "GHS 880" and "/night"
+   in one element so they never wrap apart. */
+.stay__price span {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.stay__aside .btn {
+  padding: 8px 22px;
+  margin-top: 10px;
+}
+
+
+/* --------------------------------------------------------------------------
+   15. RESPONSIVE
+   Only two breakpoints — the grid and clamp() handle most of it already.
+   -------------------------------------------------------------------------- */
+@media (max-width: 760px) {
+  .site-header__inner {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .main-nav ul {
+    gap: 18px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search__form { flex-direction: column; }
+
+  .search__input,
+  .btn {
+    border-radius: 10px;
+    text-align: center;
+  }
+
+  .card--row .card__img { width: 100px; }
+}
+
+/* Hotel card stacks on narrow screens. */
+@media (max-width: 620px) {
+  .stay { flex-direction: column; }
+  .stay__img { width: 100%; height: 170px; min-height: 0; }
+  .stay__aside {
+    width: 100%;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+  }
+  .stay__aside .btn { margin-top: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+
+/* ==========================================================================
+   16. INTERACTIVE PIECES
+   Everything below exists because of app.js: the phone menu, buttons that
+   look like links, the pop-up dialogs, the toast message, empty states.
+   ========================================================================== */
+
+/* The hidden attribute is how app.js hides things. Without !important, any
+   rule that sets display (like .place { display: flex }) would win and the
+   element would stay visible. */
+[hidden] { display: none !important; }
+
+/* A <button> that should look like plain text — used where something is
+   clickable but opens a dialog instead of going to another page. */
+.link-btn {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.link-btn:hover { color: var(--accent); }
+
+button:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Links get no background by default, but buttons get a grey one from the
+   browser. The outlined .btn style relied on that being transparent. */
+.btn:not(.btn--solid) {
+  background-color: transparent;
+  color: var(--ink);
+}
+
+/* Chips are buttons now, and buttons don't inherit the page font. */
+.chip {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* --- empty state: shown when a search or filter leaves nothing --- */
+.empty {
+  padding: 22px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-soft);
+  background-color: var(--surface);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+
+
+/* --------------------------------------------------------------------------
+   PHONE MENU
+   The three-line button is hidden on wide screens. Under 760px the nav and
+   Sign up button tuck away until it's pressed.
+   html.js is added by app.js — so if the script ever fails to load, the
+   menu is simply left open instead of being stuck shut.
+   -------------------------------------------------------------------------- */
+.menu-toggle {
+  display: none;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* One span drawn as three bars: the span is the middle bar,
+   ::before and ::after are the top and bottom ones. */
+.menu-toggle__bars,
+.menu-toggle__bars::before,
+.menu-toggle__bars::after {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background-color: var(--ink);
+  border-radius: 2px;
+  transition: transform .2s ease, background-color .2s ease;
+}
+
+.menu-toggle__bars { position: relative; }
+
+.menu-toggle__bars::before,
+.menu-toggle__bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.menu-toggle__bars::before { top: -6px; }
+.menu-toggle__bars::after  { top: 6px; }
+
+/* Open state: the middle bar vanishes, the other two cross into an X. */
+.site-header.is-open .menu-toggle__bars { background-color: transparent; }
+.site-header.is-open .menu-toggle__bars::before { transform: translateY(6px) rotate(45deg); }
+.site-header.is-open .menu-toggle__bars::after  { transform: translateY(-6px) rotate(-45deg); }
+
+@media (max-width: 760px) {
+  .js .site-header__inner {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0;
+  }
+
+  .js .menu-toggle { display: inline-flex; order: 1; }
+
+  .js .main-nav {
+    display: none;
+    order: 2;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .js .site-header__inner > .btn {
+    display: none;
+    order: 3;
+    width: 100%;
+    margin: 12px 0 4px;
+    text-align: center;
+  }
+
+  .js .site-header.is-open .main-nav,
+  .js .site-header.is-open .site-header__inner > .btn { display: block; }
+
+  .js .main-nav ul {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .js .main-nav a {
+    display: block;
+    padding: 12px 2px;
+    border-bottom: 1px solid var(--line);
+    font-size: 16px;
+  }
+
+  .js .main-nav .is-current {
+    color: var(--accent);
+    border-bottom-color: var(--line);
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   DIALOGS
+   One <dialog class="modal"> that app.js fills with whatever it needs:
+   the sign-up form, About, a hotel booking. showModal() gives it the dark
+   backdrop, traps keyboard focus inside, and closes on Escape for free.
+   -------------------------------------------------------------------------- */
+.modal {
+  margin: auto;
+  width: min(460px, calc(100% - 32px));
+  max-height: calc(100% - 32px);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background-color: var(--surface);
+  color: var(--ink);
+  font-family: inherit;
+}
+
+.modal::backdrop { background-color: rgba(26, 26, 24, .55); }
+
+.modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.modal__title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.modal__close {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  font: inherit;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--ink-soft);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.modal__close:hover { color: var(--ink); border-color: var(--ink); }
+
+.modal__body {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px 20px;
+}
+
+.modal__body p { font-size: 14.5px; line-height: 1.6; }
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.modal__note {
+  font-size: 12.5px !important;
+  color: var(--ink-soft);
+}
+
+.modal__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* The running total in the hotel booking dialog. */
+.summary {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  background-color: var(--cream);
+  border-radius: 10px;
+}
+
+.summary > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.summary__total { font-weight: 800; font-size: 15px; }
+
+/* Linked list of stops inside the trip details dialog. */
+.stop-list { display: grid; gap: 6px; font-size: 14.5px; }
+.stop-list a { color: var(--accent); font-weight: 600; }
+.stop-list a:hover { text-decoration: underline; }
+
+/* --- photo viewer: the same dialog, wider and dark --- */
+.modal--photo {
+  width: min(980px, calc(100% - 32px));
+  background-color: #111;
+  color: #fff;
+}
+
+.modal--photo .modal__head { border-bottom-color: #2a2a2a; }
+.modal--photo .modal__close { color: #ccc; border-color: #444; }
+
+.photo__img {
+  width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  background-color: #111;
+}
+
+.photo__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px 16px;
+  font-size: 13px;
+  color: #bbb;
+}
+
+.photo__bar .btn {
+  color: #fff;
+  border-color: #555;
+  background: none;
+  padding: 8px 16px;
+}
+
+.photo__bar .btn:hover { border-color: #fff; }
+
+
+/* --------------------------------------------------------------------------
+   TOAST
+   The short message that slides up from the bottom after an action
+   ("Trip saved"). It lives in one element; app.js changes the text and
+   adds .is-visible for a few seconds.
+   -------------------------------------------------------------------------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 100;
+  max-width: calc(100% - 32px);
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--cream);
+  background-color: var(--ink);
+  border-radius: 999px;
+  opacity: 0;
+  transform: translate(-50%, 16px);
+  transition: opacity .2s ease, transform .2s ease;
+  pointer-events: none;     /* never blocks a click on what's underneath */
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (max-width: 480px) {
+  .toast { border-radius: 12px; }
+  .modal__row { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,318 @@
+/* ==========================================================================
+   COMMUNITY PAGE
+   Styles unique to community.html — the room list and chat panel. Shared
+   page chrome lives in base.css, loaded before this file.
+   ========================================================================== */
+
+.community {
+  display: grid;
+  grid-template-columns: 306px 1fr;
+  gap: var(--gap);
+  align-items: start;
+}
+
+
+/* --------------------------------------------------------------------------
+   AVATARS
+   No image files. A circle, two initials, centred with flex. Cheap, always
+   loads, and it never 404s on you.
+   -------------------------------------------------------------------------- */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: .02em;
+}
+
+.avatar--sm { width: 30px; height: 30px; font-size: 11px; }
+
+.avatar--kakum { background-color: #2C6E49; }
+.avatar--volta { background-color: #2A7FA8; }
+.avatar--accra { background-color: #C9431F; }
+.avatar--mole  { background-color: #8A5A28; }
+.avatar--solo  { background-color: #7A3F9D; }
+.avatar--north { background-color: #B0851C; }
+
+
+/* --------------------------------------------------------------------------
+   ROOM LIST
+   -------------------------------------------------------------------------- */
+.rooms {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: sticky;
+  top: 76px;
+}
+
+.rooms__title {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.room {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 10px 10px 8px;
+  border-radius: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.room:first-of-type { border-top: 0; }
+
+.room:hover { background-color: #FAF7F1; }
+
+.room--open {
+  background-color: #FBF3EF;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* min-width: 0 again — without it the long preview line refuses to
+   truncate and shoves the timestamp off the edge. */
+.room__body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Truncated too, or a long room name wraps and the rows go uneven. */
+.room__name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.room__name a:hover { color: var(--accent); }
+
+/* The three lines that cut a long string off with an ellipsis. All three
+   are required — this is one of those CSS incantations you memorise. */
+.room__last {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.room__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.room__meta time {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.badge {
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background-color: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* --------------------------------------------------------------------------
+   CHAT PANEL
+   A flex column: head and composer keep their height, the message list
+   takes the rest and scrolls inside itself.
+   -------------------------------------------------------------------------- */
+.chat {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 130px);   /* fills the window below the header */
+  min-height: 460px;
+}
+
+.chat__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.chat__name { font-size: 16px; font-weight: 700; }
+
+.chat__count { font-size: 12.5px; color: var(--ink-soft); }
+
+/* margin-left: auto pushes one flex item to the far end. Cleaner than
+   space-between when only the last item should move. */
+.chat__head .btn {
+  margin-left: auto;
+  padding: 7px 15px;
+  border-color: var(--line);
+  color: var(--ink-soft);
+}
+
+.chat__head .btn:hover { border-color: var(--ink); color: var(--ink); }
+
+
+/* --------------------------------------------------------------------------
+   MESSAGES
+   -------------------------------------------------------------------------- */
+.messages {
+  flex: 1;              /* eats all the leftover height */
+  overflow-y: auto;     /* and scrolls rather than stretching the page */
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;   /* short chats sit at the bottom, like a real
+                                  messaging app, instead of floating at top */
+  gap: 12px;
+  list-style: none;
+}
+
+.msg {
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+  max-width: 74%;
+}
+
+/* Your own messages: reversed row, pushed to the right edge. */
+.msg--mine {
+  flex-direction: row-reverse;
+  margin-left: auto;
+}
+
+.msg__who {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-bottom: 3px;
+  padding: 0 3px;
+}
+
+.msg--mine .msg__who { text-align: right; }
+
+.msg__bubble {
+  background-color: #F1EDE5;
+  padding: 9px 13px;
+  border-radius: 14px 14px 14px 4px;   /* the flat corner points at the sender */
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.msg--mine .msg__bubble {
+  background-color: var(--accent);
+  color: #fff;
+  border-radius: 14px 14px 4px 14px;   /* flat corner on the other side */
+}
+
+
+/* --------------------------------------------------------------------------
+   COMPOSER
+   -------------------------------------------------------------------------- */
+.composer {
+  display: flex;
+  gap: 9px;
+  padding: 13px 16px;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.composer__input {
+  flex: 1;
+  padding: 11px 16px;
+  font: inherit;
+  font-size: 14.5px;
+  color: var(--ink);
+  background-color: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.composer__input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .community { grid-template-columns: 1fr; }
+
+  .rooms { position: static; }
+
+  /* A fixed viewport height makes no sense once the page stacks. */
+  .chat { height: auto; }
+
+  .messages { max-height: 460px; }
+}
+
+@media (max-width: 560px) {
+  .msg { max-width: 88%; }
+}
+
+
+/* --------------------------------------------------------------------------
+   ADDED FOR app.js
+   -------------------------------------------------------------------------- */
+/* The whole room row is clickable, but there's only one real button in it
+   (the room name). Its ::after stretches over the entire row, so a click
+   anywhere on the row lands on the button. */
+.room { position: relative; cursor: pointer; }
+
+.room__name .link-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+}
+
+.room__name .link-btn {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* After you leave a room the box greys out until you join again. */
+.composer__input:disabled,
+.composer .btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.messages__note {
+  align-self: center;
+  font-size: 12px;
+  color: var(--ink-soft);
+  padding: 4px 10px;
+  background-color: var(--cream);
+  border-radius: 999px;
+}
+
+/* Grid columns refuse to shrink below their widest unbreakable content —
+   here, a long room name set to nowrap. min-width: 0 lets them shrink so
+   the ellipsis kicks in instead of the page scrolling sideways on phones. */
+.community > * { min-width: 0; }
+
+.chat__head .btn { white-space: nowrap; }

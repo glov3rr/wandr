@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wandr — Community</title>
+
+  <link rel="icon" type="image/png" href="Images/favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="base.css">
+
+  <link rel="stylesheet" href="communitydesign.css">
+
+  <!-- defer: download the script now, but run it only after the HTML is
+       fully read. Without it, the script would run before the buttons exist. -->
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="logo" href="home.html">
+        <img src="Images/apple-touch-icon.png" alt="" width="30" height="30">
+        <span>Wandr.</span>
+      </a>
+      <nav class="main-nav" id="main-nav">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a href="explore.html">Explore</a></li>
+          <li><a href="trips.html">Trips</a></li>
+          <li><a href="stays.html">Stays</a></li>
+          <li><a class="is-current" href="community.html">Community</a></li>
+        </ul>
+      </nav>
+      <!-- A <button>, not a link: it opens something on this page rather than
+           going to another page. data-dialog tells app.js which one. -->
+      <button class="btn btn--solid" type="button" data-dialog="signup">Sign up</button>
+      <!-- Only shown on phones. aria-expanded tells screen readers whether
+           the menu is open; app.js flips it. -->
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
+        <span class="menu-toggle__bars" aria-hidden="true"></span>
+        <span class="visually-hidden">Menu</span>
+      </button>
+    </div>
+  </header>
+
+
+  <main class="page">
+
+    <section class="intro">
+      <p class="intro__greeting">6 rooms · 1,240 travellers</p>
+      <h1 class="intro__title">Community</h1>
+    </section>
+
+    <section class="categories">
+      <h2 class="visually-hidden">Filter rooms</h2>
+      <ul class="chips">
+        <li><button class="chip chip--active" type="button" data-filter="all" aria-pressed="true">All rooms</button></li>
+        <li><button class="chip" type="button" data-filter="joined" aria-pressed="false">Joined</button></li>
+        <li><button class="chip" type="button" data-filter="regions" aria-pressed="false">Regions</button></li>
+        <li><button class="chip" type="button" data-filter="buddies" aria-pressed="false">Trip buddies</button></li>
+      </ul>
+    </section>
+
+
+    <section class="community">
+
+      <aside class="rooms">
+        <h2 class="rooms__title">Chat rooms</h2>
+
+        <ul class="rooms__list" data-rooms>
+          <li class="room room--open" data-room="kakum" data-groups="joined regions">
+            <span class="avatar avatar--kakum" aria-hidden="true">KC</span>
+            <div class="room__body">
+              <h3 class="room__name"><button class="link-btn" type="button">Kakum &amp; Cape Coast</button></h3>
+              <p class="room__last">Ama: Go on a weekday if you can</p>
+            </div>
+            <div class="room__meta">
+              <time datetime="2026-09-12T09:14">09:14</time>
+              <span class="badge">3</span>
+            </div>
+          </li>
+
+          <li class="room" data-room="volta" data-groups="regions">
+            <span class="avatar avatar--volta" aria-hidden="true">VR</span>
+            <div class="room__body">
+              <h3 class="room__name"><button class="link-btn" type="button">Volta Region</button></h3>
+              <p class="room__last">Kojo: Afadjato in the rainy season?</p>
+            </div>
+            <div class="room__meta">
+              <time datetime="2026-09-12T08:02">08:02</time>
+            </div>
+          </li>
+
+          <li class="room" data-room="accra" data-groups="joined buddies">
+            <span class="avatar avatar--accra" aria-hidden="true">AW</span>
+            <div class="room__body">
+              <h3 class="room__name"><button class="link-btn" type="button">Accra Weekenders</button></h3>
+              <p class="room__last">Naa: Labadi was packed on Sunday</p>
+            </div>
+            <div class="room__meta">
+              <time datetime="2026-09-11T21:40">Yesterday</time>
+              <span class="badge">7</span>
+            </div>
+          </li>
+
+          <li class="room" data-room="mole" data-groups="regions">
+            <span class="avatar avatar--mole" aria-hidden="true">MS</span>
+            <div class="room__body">
+              <h3 class="room__name"><button class="link-btn" type="button">Mole Safari</button></h3>
+              <p class="room__last">Yaw: Saw elephants at the waterhole</p>
+            </div>
+            <div class="room__meta">
+              <time datetime="2026-09-11T17:22">Yesterday</time>
+            </div>
+          </li>
+
+          <li class="room" data-room="solo" data-groups="joined buddies">
+            <span class="avatar avatar--solo" aria-hidden="true">SG</span>
+            <div class="room__body">
+              <h3 class="room__name"><button class="link-btn" type="button">Solo travellers Ghana</button></h3>
+              <p class="room__last">Efua: Anyone heading north in October?</p>
+            </div>
+            <div class="room__meta">
+              <time datetime="2026-09-10T14:05">Wed</time>
+              <span class="badge">2</span>
+            </div>
+          </li>
+
+          <li class="room" data-room="north" data-groups="regions">
+            <span class="avatar avatar--north" aria-hidden="true">NG</span>
+            <div class="room__body">
+              <h3 class="room__name"><button class="link-btn" type="button">Northern Ghana</button></h3>
+              <p class="room__last">Musah: Tamale to Mole is about 2 hours</p>
+            </div>
+            <div class="room__meta">
+              <time datetime="2026-09-09T11:30">Tue</time>
+            </div>
+          </li>
+        </ul>
+      </aside>
+
+
+      <div class="chat" id="chat">
+
+        <header class="chat__head">
+          <span class="avatar avatar--kakum" aria-hidden="true">KC</span>
+          <div>
+            <h2 class="chat__name">Kakum &amp; Cape Coast</h2>
+            <p class="chat__count">218 members · 12 online</p>
+          </div>
+          <button class="btn" type="button" data-leave>Leave room</button>
+        </header>
+
+        <!-- aria-live: screen readers announce new messages as they arrive -->
+        <ol class="messages" aria-live="polite">
+
+          <li class="msg">
+            <span class="avatar avatar--sm avatar--volta" aria-hidden="true">KA</span>
+            <div class="msg__body">
+              <p class="msg__who">Kwabena · <time datetime="2026-09-12T08:41">08:41</time></p>
+              <p class="msg__bubble">Has anyone visited Elmina Castle recently? Wondering how busy it gets.</p>
+            </div>
+          </li>
+          <li class="msg">
+            <span class="avatar avatar--sm avatar--accra" aria-hidden="true">AD</span>
+            <div class="msg__body">
+              <p class="msg__who">Ama · <time datetime="2026-09-12T08:47">08:47</time></p>
+              <p class="msg__bubble">Went two weeks ago. Tours start on the hour and the 9am one was almost empty.</p>
+            </div>
+          </li>
+          <li class="msg">
+            <span class="avatar avatar--sm avatar--accra" aria-hidden="true">AD</span>
+            <div class="msg__body">
+              <p class="msg__who">Ama · <time datetime="2026-09-12T08:48">08:48</time></p>
+              <p class="msg__bubble">Go on a weekday if you can. Saturdays are rough.</p>
+            </div>
+          </li>
+          <li class="msg msg--mine">
+            <div class="msg__body">
+              <p class="msg__who"><time datetime="2026-09-12T09:02">09:02</time> · You</p>
+              <p class="msg__bubble">Good to know. Is it walkable from Cape Coast Castle or should I get a taxi?</p>
+            </div>
+          </li>
+          <li class="msg">
+            <span class="avatar avatar--sm avatar--mole" aria-hidden="true">YO</span>
+            <div class="msg__body">
+              <p class="msg__who">Yaw · <time datetime="2026-09-12T09:09">09:09</time></p>
+              <p class="msg__bubble">Taxi. It is about 15km along the coast road, roughly GHS 40.</p>
+            </div>
+          </li>
+          <li class="msg msg--mine">
+            <div class="msg__body">
+              <p class="msg__who"><time datetime="2026-09-12T09:11">09:11</time> · You</p>
+              <p class="msg__bubble">Perfect, thanks both.</p>
+            </div>
+          </li>
+          <li class="msg">
+            <span class="avatar avatar--sm avatar--accra" aria-hidden="true">AD</span>
+            <div class="msg__body">
+              <p class="msg__who">Ama · <time datetime="2026-09-12T09:14">09:14</time></p>
+              <p class="msg__bubble">Do Kakum the same trip. It is 40 minutes inland and the canopy walk opens at 8.</p>
+            </div>
+          </li>
+
+        </ol>
+
+        <form class="composer" data-composer>
+          <label class="visually-hidden" for="message">Message</label>
+          <input class="composer__input" type="text" id="message" name="message"
+                 placeholder="Message the room..." autocomplete="off">
+          <button class="btn btn--solid" type="submit">Send</button>
+        </form>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <p class="site-footer__line">Wandr — travel in Ghana, planned in one place.</p>
+      <nav>
+        <ul class="site-footer__nav">
+          <li><button class="link-btn" type="button" data-dialog="about">About</button></li>
+          <li><button class="link-btn" type="button" data-dialog="contact">Contact</button></li>
+          <li><button class="link-btn" type="button" data-dialog="privacy">Privacy</button></li>
+        </ul>
+      </nav>
+      <p class="site-footer__copy">&copy; 2026 Wandr.</p>
+    </div>
+  </footer>
+
+</body>
+
+</html>

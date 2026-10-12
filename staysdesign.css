@@ -1,0 +1,150 @@
+/* ==========================================================================
+   STAYS PAGE
+   Styles unique to stays.html — the filter sidebar and results bar.
+   Shared page chrome, amenity tags, form fields and the hotel card
+   itself all live in base.css, loaded before this file.
+   ========================================================================== */
+
+/* Mirror of the explore layout — sidebar first this time. */
+.stays {
+  display: grid;
+  grid-template-columns: 262px 1fr;
+  gap: var(--gap);
+  align-items: start;
+}
+
+
+/* --------------------------------------------------------------------------
+   FILTER SIDEBAR
+   -------------------------------------------------------------------------- */
+.filters {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  position: sticky;
+  top: 76px;
+}
+
+.filters__title {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.filters .field + .fieldset,
+.filters .field + .field { margin-top: 16px; }
+
+/* Checkboxes down a column rather than across a grid. */
+.check-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.filters__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.filters__actions .btn {
+  flex: 1;
+  padding: 9px 12px;
+  text-align: center;
+}
+
+.filters__actions .btn[type="reset"] {
+  border-color: var(--line);
+  color: var(--ink-soft);
+}
+
+.filters__actions .btn[type="reset"]:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/* A range slider is not a text box — strip the box styling back off. */
+.field__input--range {
+  padding: 0;
+  border: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.field__readout {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+
+
+/* --------------------------------------------------------------------------
+   RESULTS BAR
+   -------------------------------------------------------------------------- */
+.results__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.results__count {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+/* Label beside the control instead of above it — the only place on the
+   site where that reads better, because the bar is one line. */
+.field--inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field--inline .field__label { margin-bottom: 0; white-space: nowrap; }
+
+.field--inline .field__input {
+  width: auto;
+  padding: 8px 12px;
+  font-size: 13.5px;
+}
+
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .stays { grid-template-columns: 1fr; }
+
+  .filters {
+    position: static;
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 620px) {
+  .results__bar { flex-direction: column; align-items: flex-start; }
+}
+
+
+/* --------------------------------------------------------------------------
+   ADDED FOR app.js
+   -------------------------------------------------------------------------- */
+/* Phone-only button that opens and closes the filter form. */
+.filters__toggle { display: none; }
+
+@media (max-width: 900px) {
+  .js .filters__toggle {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  .js .filters form { display: none; margin-top: 16px; }
+  .js .filters.is-open form { display: block; }
+}

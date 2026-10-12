@@ -1,0 +1,173 @@
+/* ==========================================================================
+   TRIPS PAGE
+   Styles unique to trips.html — saved trip cards and the "Plan a trip"
+   form. Shared page chrome, amenity tags and form fields live in base.css,
+   loaded before this file.
+   ========================================================================== */
+
+/* --- saved trip cards --- */
+.trip-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--gap);
+}
+
+.trip {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  height: 100%;
+}
+
+.trip__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.trip__name {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.trip__name a:hover { color: var(--accent); }
+
+.trip__status {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.trip__status--booked { background-color: var(--tag-bg); color: var(--tag-ink); }
+.trip__status--draft  { background-color: #EFEAE0; color: var(--ink-soft); }
+
+.trip__dates {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-top: 3px;
+}
+
+/* Four stat pairs in a row. Each dt/dd sits in its own div so grid can
+   treat the pair as one cell. */
+.trip__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 14px 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.trip__stats dt {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--ink-soft);
+}
+
+.trip__stats dd {
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* --- package cards: two extra pieces bolted onto the shared .card --- */
+.card__price {
+  font-size: 17px;
+  font-weight: 800;
+  margin-top: 8px;
+}
+
+.card__cta {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+}
+
+
+/* --------------------------------------------------------------------------
+   FORM
+   -------------------------------------------------------------------------- */
+.form {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+
+.form__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+/* --- grouped controls: layout only — .fieldset/.fieldset__legend/.check
+       itself live in base.css, shared with the Stays filter sidebar --- */
+.check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 16px;
+}
+
+.check-grid--3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+.form__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+/* The reset button is the unfilled variant — same shape, no fill,
+   so the eye goes to Save first. */
+.form__actions .btn[type="reset"] {
+  border-color: var(--line);
+  color: var(--ink-soft);
+}
+
+.form__actions .btn[type="reset"]:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+
+@media (max-width: 560px) {
+  .trip__stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+
+/* --------------------------------------------------------------------------
+   ADDED FOR app.js
+   -------------------------------------------------------------------------- */
+/* "Book this package" is a <button> now; buttons don't stretch to fill
+   their box the way a block link does, so say it outright. */
+.card__cta { width: 100%; }
+
+.trip__status--planned { background-color: #FBEDE8; color: var(--accent-dk); }
+
+/* A trip you just saved gets an outline for a moment, so you can see where
+   it landed. app.js removes the class after a few seconds. */
+.trip {
+  transition: border-color .3s ease, box-shadow .3s ease;
+}
+
+.trip.is-new {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px #FBE3DA;
+}
+
+/* The error line under the Attractions box when nothing is ticked. */
+.form__error {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-dk);
+}

@@ -68,17 +68,17 @@ function nightsBetween(start, end) {
 
 // Every attraction, keyed by the short id used in forms and on the map.
 const PLACES = {
-  "kakum":      { name: "Kakum National Park",         page: "kakum.html" },
-  "cape-coast": { name: "Cape Coast Castle",           page: "cape-coast-castle.html" },
-  "elmina":     { name: "Elmina Castle",               page: "elmina-castle.html" },
-  "nkrumah":    { name: "Kwame Nkrumah Memorial Park", page: "kwame-nkrumah.html" },
-  "mole":       { name: "Mole National Park",          page: "mole.html" },
-  "aburi":      { name: "Aburi Botanical Gardens",     page: "aburi.html" },
-  "wli":        { name: "Wli Waterfalls",              page: "wli-waterfalls.html" },
-  "shai":       { name: "Shai Hills Resource Reserve", page: "shai-hills.html" },
-  "labadi":     { name: "Labadi Beach",                page: "labadi-beach.html" },
-  "afadjato":   { name: "Mount Afadja",                page: "afadjato.html" },
-  "lake-volta": { name: "Lake Volta",                  page: "lake-volta.html" },
+  "kakum":      { name: "Kakum National Park",         page: "kakum.html",             region: "Central" },
+  "cape-coast": { name: "Cape Coast Castle",           page: "cape-coast-castle.html", region: "Central" },
+  "elmina":     { name: "Elmina Castle",               page: "elmina-castle.html",     region: "Central" },
+  "nkrumah":    { name: "Kwame Nkrumah Memorial Park", page: "kwame-nkrumah.html",     region: "Greater Accra" },
+  "mole":       { name: "Mole National Park",          page: "mole.html",              region: "Savannah" },
+  "aburi":      { name: "Aburi Botanical Gardens",     page: "aburi.html",             region: "Eastern" },
+  "wli":        { name: "Wli Waterfalls",              page: "wli-waterfalls.html",    region: "Volta" },
+  "shai":       { name: "Shai Hills Resource Reserve", page: "shai-hills.html",        region: "Greater Accra" },
+  "labadi":     { name: "Labadi Beach",                page: "labadi-beach.html",      region: "Greater Accra" },
+  "afadjato":   { name: "Mount Afadja",                page: "afadjato.html",          region: "Volta" },
+  "lake-volta": { name: "Lake Volta",                  page: "lake-volta.html",        region: "Volta" },
 };
 
 
@@ -259,7 +259,7 @@ $$('input[type="date"]').forEach((input) => { input.min = todayISO(); });
   if (greeting) {
     const hour = new Date().getHours();
     const part = hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening";
-    greeting.textContent = `Good ${part}, Kofi`;
+    greeting.textContent = `Good ${part}`;
   }
 
   let category = "all";
@@ -1017,6 +1017,7 @@ $$('input[type="date"]').forEach((input) => { input.min = todayISO(); });
     if (!ok) return focusFirstError(signInForm);
 
     fakeRequest(signInForm, "Signing in…", () => {
+      signInAs(nameFromEmail(email.value), email.value.trim(), SAMPLE_VISITED);
       finish("You're signed in", `Welcome back. You're signed in as ${email.value.trim()}.`);
     });
   });
@@ -1046,6 +1047,7 @@ $$('input[type="date"]').forEach((input) => { input.min = todayISO(); });
 
     const firstName = name.value.trim().split(" ")[0];
     fakeRequest(createForm, "Creating account…", () => {
+      signInAs(name.value.trim(), email.value.trim(), []);
       finish(`Welcome to Wandr, ${firstName}`,
         `Your account is ready. We've sent a confirmation link to ${email.value.trim()}.`);
     });
@@ -1074,5 +1076,287 @@ $$('input[type="date"]').forEach((input) => { input.min = todayISO(); });
   // --- Google ---------------------------------------------------------------------
   $("[data-google]").addEventListener("click", () => {
     toast("Google sign-in isn't connected yet. Use your email for now.");
+  });
+})();
+
+
+const GHANA_REGIONS = 16;
+const SAMPLE_VISITED = ["kakum", "cape-coast", "labadi"];
+
+const store = {
+  get(key, fallback) {
+    try {
+      const value = localStorage.getItem("wandr:" + key);
+      return value === null ? fallback : JSON.parse(value);
+    } catch {
+      return fallback;
+    }
+  },
+  set(key, value) {
+    try { localStorage.setItem("wandr:" + key, JSON.stringify(value)); } catch {}
+  },
+  remove(key) {
+    try { localStorage.removeItem("wandr:" + key); } catch {}
+  },
+};
+
+function getUser() {
+  return store.get("user", null);
+}
+
+function getVisited() {
+  return store.get("visited", []).filter((id) => PLACES[id]);
+}
+
+function setVisited(list) {
+  store.set("visited", list);
+  renderAccount();
+  syncVisitedButton();
+}
+
+function signInAs(name, email, visited) {
+  store.set("user", { name, email });
+  if (!store.get("visited", null)) store.set("visited", visited);
+}
+
+function signOut() {
+  store.remove("user");
+  store.remove("visited");
+  renderAccount();
+  syncVisitedButton();
+  toast("You've signed out.");
+}
+
+function nameFromEmail(email) {
+  const handle = email.trim().split("@")[0].split(/[._-]/)[0];
+  return handle.charAt(0).toUpperCase() + handle.slice(1);
+}
+
+function initials(name) {
+  return name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0].toUpperCase()).join("");
+}
+
+function exploredStats() {
+  const visited = getVisited();
+  const ids = Object.keys(PLACES);
+  const regions = new Set(visited.map((id) => PLACES[id].region));
+  const nextId = ids.find((id) => !visited.includes(id));
+  return {
+    count: visited.length,
+    total: ids.length,
+    percent: Math.round((visited.length / ids.length) * 100),
+    regions: regions.size,
+    next: nextId ? PLACES[nextId] : null,
+  };
+}
+
+function exploredHTML() {
+  const stats = exploredStats();
+  const next = stats.next
+    ? `<a class="explored__next" href="${stats.next.page}">Next up: ${stats.next.name} ›</a>`
+    : `<p class="explored__next">You've been to every place on Wandr.</p>`;
+  return `
+    <div class="explored">
+      <div class="explored__top">
+        <span>Ghana explored</span>
+        <strong>${stats.percent}%</strong>
+      </div>
+      <div class="explored__bar" role="progressbar" aria-label="Places visited"
+           aria-valuemin="0" aria-valuemax="${stats.total}" aria-valuenow="${stats.count}">
+        <span style="width: ${stats.percent}%"></span>
+      </div>
+      <p class="explored__meta">${stats.count} of ${stats.total} places · ${stats.regions} of ${GHANA_REGIONS} regions</p>
+      ${next}
+    </div>`;
+}
+
+function renderAccount() {
+  const header = $(".site-header__inner");
+
+  const greeting = $("[data-greeting]");
+  const user = getUser();
+  if (greeting) {
+    greeting.textContent = greeting.textContent.split(",")[0] + (user ? `, ${user.name.split(" ")[0]}` : "");
+  }
+
+  if (!header) return;
+
+  const wasOpen = $(".profile__menu", header) && !$(".profile__menu", header).hidden;
+  $(".profile", header)?.remove();
+  $('a[href="signin.html"]', header).hidden = Boolean(user);
+  if (!user) return;
+
+  const profile = document.createElement("div");
+  profile.className = "profile";
+  profile.innerHTML = `
+    <button class="profile__toggle" type="button" aria-expanded="false" aria-controls="profile-menu">
+      <span class="profile__avatar" aria-hidden="true">${escapeHTML(initials(user.name))}</span>
+      <span class="profile__name">${escapeHTML(user.name.split(" ")[0])}</span>
+      <span class="profile__caret" aria-hidden="true">▾</span>
+    </button>
+    <div class="profile__menu" id="profile-menu" hidden>
+      <div class="profile__head">
+        <span class="profile__avatar profile__avatar--lg" aria-hidden="true">${escapeHTML(initials(user.name))}</span>
+        <div class="profile__who">
+          <p class="profile__fullname">${escapeHTML(user.name)}</p>
+          <p class="profile__email">${escapeHTML(user.email)}</p>
+        </div>
+      </div>
+      ${exploredHTML()}
+      <ul class="profile__links">
+        <li><button class="profile__item" type="button" data-profile="visited">Places I've visited</button></li>
+        <li><a class="profile__item" href="trips.html">My trips</a></li>
+        <li><a class="profile__item" href="community.html">My chat rooms</a></li>
+        <li><button class="profile__item" type="button" data-profile="account">Account settings</button></li>
+        <li><button class="profile__item" type="button" data-profile="help">Help and contact</button></li>
+      </ul>
+      <button class="profile__signout" type="button" data-profile="signout">Sign out</button>
+    </div>`;
+  header.insertBefore(profile, $(".menu-toggle", header));
+
+  const toggle = $(".profile__toggle", profile);
+  const menu = $(".profile__menu", profile);
+
+  function setOpen(open) {
+    menu.hidden = !open;
+    toggle.setAttribute("aria-expanded", open);
+  }
+
+  toggle.addEventListener("click", () => setOpen(menu.hidden));
+  setOpen(Boolean(wasOpen));
+
+  $$("[data-profile]", menu).forEach((item) => {
+    item.addEventListener("click", () => {
+      setOpen(false);
+      PROFILE_ACTIONS[item.dataset.profile]();
+    });
+  });
+}
+
+const PROFILE_ACTIONS = {
+  visited: openVisitedDialog,
+  account: openAccountDialog,
+  help: () => DIALOGS.contact(),
+  signout: signOut,
+};
+
+function openVisitedDialog() {
+  const byRegion = {};
+  Object.entries(PLACES).forEach(([id, place]) => {
+    (byRegion[place.region] ||= []).push(id);
+  });
+  const visited = getVisited();
+
+  const groups = Object.entries(byRegion).map(([region, ids]) => `
+    <fieldset class="fieldset visited-group">
+      <legend class="fieldset__legend">${region}</legend>
+      ${ids.map((id) => `
+        <label class="check">
+          <input type="checkbox" value="${id}" ${visited.includes(id) ? "checked" : ""}> ${PLACES[id].name}
+        </label>`).join("")}
+    </fieldset>`).join("");
+
+  openDialog({
+    title: "Places I've visited",
+    body: `<div data-explored>${exploredHTML()}</div>${groups}`,
+    onOpen(dialog) {
+      dialog.addEventListener("change", () => {
+        const ticked = $$('input[type="checkbox"]:checked', dialog).map((box) => box.value);
+        setVisited(ticked);
+        $("[data-explored]", dialog).innerHTML = exploredHTML();
+      });
+    },
+  });
+}
+
+function openAccountDialog() {
+  const user = getUser();
+  openDialog({
+    title: "Account settings",
+    submitLabel: "Save changes",
+    body: `
+      <p class="field">
+        <label class="field__label" for="ac-name">Full name</label>
+        <input class="field__input" id="ac-name" name="name" required minlength="2"
+               autocomplete="name" value="${escapeHTML(user.name)}">
+      </p>
+      <p class="field">
+        <label class="field__label" for="ac-email">Email</label>
+        <input class="field__input" id="ac-email" name="email" type="email" required
+               autocomplete="email" value="${escapeHTML(user.email)}">
+      </p>`,
+    onSubmit(form) {
+      store.set("user", { name: form.elements.name.value.trim(), email: form.elements.email.value.trim() });
+      renderAccount();
+      toast("Your details are saved.");
+    },
+  });
+}
+
+function currentPlaceId() {
+  const file = location.pathname.split("/").pop().replace(/\.html$/, "");
+  return Object.keys(PLACES).find((id) => PLACES[id].page.replace(/\.html$/, "") === file);
+}
+
+function syncVisitedButton() {
+  const button = $("[data-visited]");
+  if (!button) return;
+  const been = Boolean(getUser()) && getVisited().includes(currentPlaceId());
+  button.setAttribute("aria-pressed", been);
+  button.textContent = been ? "Visited ✓" : "I've been here";
+}
+
+(function setupProfile() {
+  renderAccount();
+  syncVisitedButton();
+
+  document.addEventListener("click", (event) => {
+    const menu = $(".profile__menu");
+    if (menu && !menu.hidden && !event.target.closest(".profile")) {
+      menu.hidden = true;
+      $(".profile__toggle").setAttribute("aria-expanded", false);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const menu = $(".profile__menu");
+    if (event.key === "Escape" && menu && !menu.hidden) {
+      menu.hidden = true;
+      $(".profile__toggle").setAttribute("aria-expanded", false);
+      $(".profile__toggle").focus();
+    }
+  });
+
+  window.addEventListener("storage", () => {
+    renderAccount();
+    syncVisitedButton();
+  });
+
+  const button = $("[data-visited]");
+  if (!button) return;
+
+  button.addEventListener("click", () => {
+    if (!getUser()) {
+      openDialog({
+        title: "Sign in to track your travels",
+        body: `
+          <p>Sign in and Wandr keeps count of the places you've been, so you can see how much of Ghana you've explored.</p>
+          <div class="modal__actions">
+            <a class="btn" href="signin.html#create">Create account</a>
+            <a class="btn btn--solid" href="signin.html">Sign in</a>
+          </div>`,
+      });
+      return;
+    }
+
+    const id = currentPlaceId();
+    const visited = getVisited();
+    const been = visited.includes(id);
+    setVisited(been ? visited.filter((v) => v !== id) : [...visited, id]);
+
+    const stats = exploredStats();
+    toast(been
+      ? `${PLACES[id].name} removed from your places.`
+      : `${PLACES[id].name} added. You've explored ${stats.count} of ${stats.total} places.`);
   });
 })();

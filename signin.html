@@ -16,18 +16,14 @@
 
   <link rel="stylesheet" href="signindesign.css">
 
-  <script src="app.js" defer></script>
+  <script>document.documentElement.classList.add("js");</script>
+  <script type="module" src="js/main.js"></script>
 </head>
 
-<body>
+<body data-page="signin">
 
-  <!-- No site header or footer on this page: the only job here is signing
-       in, so everything else steps out of the way. The logo still links home. -->
   <main class="auth">
 
-    <!-- ============ PHOTO PANEL ============
-         Decoration only, so the image has alt="". On phones it shrinks to a
-         short banner across the top. -->
     <aside class="auth__visual">
       <img src="Images/kakum 1.jpeg" alt="">
       <div class="auth__visual-text">
@@ -36,29 +32,22 @@
           <span>Wandr.</span>
         </a>
         <div>
-          <p class="auth__quote">Tourism At Your Fingertips!</p>
+          <p class="auth__quote">Plan Kakum, Cape Coast and the Volta in one trip.</p>
+          <p class="auth__stats">11 attractions · 6 stays · 1,240 travellers</p>
         </div>
       </div>
     </aside>
 
 
-    <!-- ============ FORM PANEL ============ -->
     <section class="auth__panel">
 
       <a class="auth__back" href="home.html">‹ Back to home</a>
 
-      <!-- Everything inside this div is swapped for the "done" message
-           once you sign in. -->
       <div data-auth-forms>
 
-        <!-- app.js changes these two lines when you switch tabs. -->
         <h1 class="auth__title" data-auth-title>Welcome back</h1>
         <p class="auth__lead" data-auth-lead>Sign in to see your saved trips and bookings.</p>
 
-        <!-- ---- TABS ----
-             role="tablist" / "tab" / "tabpanel" tell screen readers this is
-             a set of tabs. aria-selected marks the open one; aria-controls
-             points each tab at the form it shows. -->
         <div class="tabs" role="tablist" aria-label="Sign in or create an account">
           <button class="tab" type="button" role="tab" id="tab-signin"
                   aria-selected="true" aria-controls="panel-signin" data-tab="signin">Sign in</button>
@@ -67,9 +56,6 @@
         </div>
 
 
-        <!-- ---- SIGN IN FORM ----
-             novalidate turns off the browser's own pop-up bubbles, so
-             app.js can show its own messages under each field instead. -->
         <form class="auth__form" id="panel-signin" role="tabpanel" aria-labelledby="tab-signin"
               novalidate data-auth="signin">
 
@@ -84,7 +70,6 @@
               <label class="field__label" for="si-password">Password</label>
               <button class="link-btn auth__forgot" type="button" data-forgot>Forgot password?</button>
             </span>
-            <!-- The Show button sits inside the box, over the right edge. -->
             <span class="password">
               <input class="field__input" id="si-password" name="password" type="password"
                      autocomplete="current-password">
@@ -100,7 +85,6 @@
         </form>
 
 
-        <!-- ---- CREATE ACCOUNT FORM ---- hidden until its tab is picked -->
         <form class="auth__form" id="panel-create" role="tabpanel" aria-labelledby="tab-create"
               novalidate data-auth="create" hidden>
 
@@ -123,8 +107,6 @@
                      autocomplete="new-password" aria-describedby="ca-rules">
               <button class="password__toggle" type="button" aria-label="Show password" data-toggle-password>Show</button>
             </span>
-            <!-- Strength bar + the three rules. app.js ticks each rule off as
-                 you type, so you know what's missing before you submit. -->
             <span class="meter" data-meter><span></span></span>
             <ul class="rules" id="ca-rules">
               <li data-rule="length">8+ characters</li>
@@ -158,16 +140,13 @@
       </div>
 
 
-      <!-- ---- DONE ----
-           Shown after a successful sign in. tabindex="-1" lets app.js move
-           keyboard focus here so screen readers announce it. -->
       <div class="auth__done" data-auth-done tabindex="-1" hidden>
         <p class="auth__done-mark" aria-hidden="true">✓</p>
         <h1 class="auth__title" data-done-title>You're signed in</h1>
         <p class="auth__lead" data-done-text></p>
         <div class="auth__done-actions">
           <a class="btn btn--solid" href="explore.html">Explore places</a>
-          <a class="btn" href="trips.html">Plan a trip</a>
+          <a class="btn" href="profile.html">View your profile</a>
         </div>
       </div>
 

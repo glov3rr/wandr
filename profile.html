@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your profile — Wandr</title>
+  <meta name="description" content="Plan travel in Ghana in one place: attractions, trips, stays and other travellers.">
 
   <link rel="icon" type="image/png" href="Images/favicon.png">
 
@@ -13,15 +14,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="base.css">
-
   <link rel="stylesheet" href="profiledesign.css">
 
-  <!-- defer: download the script now, but run it only after the HTML is
-       fully read. Without it, the script would run before the buttons exist. -->
-  <script src="app.js" defer></script>
+  <script>document.documentElement.classList.add("js");</script>
+  <script type="module" src="js/main.js"></script>
 </head>
 
-<body>
+<body data-page="profile">
 
   <header class="site-header">
     <div class="site-header__inner">
@@ -38,10 +37,7 @@
           <li><a href="community.html">Community</a></li>
         </ul>
       </nav>
-      <!-- A real link now: signing in has its own page, signin.html. -->
       <a class="btn btn--solid" href="signin.html">Sign in</a>
-      <!-- Only shown on phones. aria-expanded tells screen readers whether
-           the menu is open; app.js flips it. -->
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
         <span class="menu-toggle__bars" aria-hidden="true"></span>
         <span class="visually-hidden">Menu</span>
@@ -288,7 +284,7 @@
                 </ul>
                 <h3 class="panel__subtitle">By region</h3>
                 <ul class="region-list" data-region-list></ul>
-                <p class="panel__note">Wandr lists places in 5 of Ghana's 16 regions so far.</p>
+                <p class="panel__note" data-region-note></p>
               </div>
             </div>
 

@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wandr — Explore the map</title>
+  <title>Explore the map — Wandr</title>
+  <meta name="description" content="Plan travel in Ghana in one place: attractions, trips, stays and other travellers.">
 
   <link rel="icon" type="image/png" href="Images/favicon.png">
 
@@ -13,15 +14,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="base.css">
-
   <link rel="stylesheet" href="exploredesign.css">
 
-  <!-- defer: download the script now, but run it only after the HTML is
-       fully read. Without it, the script would run before the buttons exist. -->
-  <script src="app.js" defer></script>
+  <script>document.documentElement.classList.add("js");</script>
+  <script type="module" src="js/main.js"></script>
 </head>
 
-<body>
+<body data-page="explore">
 
   <header class="site-header">
     <div class="site-header__inner">
@@ -38,10 +37,7 @@
           <li><a href="community.html">Community</a></li>
         </ul>
       </nav>
-      <!-- A real link now: signing in has its own page, signin.html. -->
       <a class="btn btn--solid" href="signin.html">Sign in</a>
-      <!-- Only shown on phones. aria-expanded tells screen readers whether
-           the menu is open; app.js flips it. -->
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
         <span class="menu-toggle__bars" aria-hidden="true"></span>
         <span class="visually-hidden">Menu</span>
@@ -53,179 +49,38 @@
   <main class="page">
 
     <section class="intro">
-      <p class="intro__greeting">11 places across 6 regions</p>
+      <p class="intro__greeting" data-explore-summary>Loading places…</p>
       <h1 class="intro__title">Explore the map</h1>
     </section>
 
-
     <section class="search">
-      <form class="search__form">
+      <form class="search__form" role="search">
         <label class="visually-hidden" for="search">Search on the map</label>
         <input class="search__input" type="search" id="search" name="search" placeholder="Search on the map...">
         <button class="btn btn--solid" type="submit">Search</button>
       </form>
     </section>
 
-
     <section class="categories">
       <h2 class="visually-hidden">Filter by category</h2>
-      <ul class="chips">
-        <li><button class="chip chip--active" type="button" data-filter="all" aria-pressed="true">All</button></li>
-        <li><button class="chip" type="button" data-filter="nature" aria-pressed="false">Nature</button></li>
-        <li><button class="chip" type="button" data-filter="history" aria-pressed="false">History</button></li>
-        <li><button class="chip" type="button" data-filter="culture" aria-pressed="false">Culture</button></li>
-        <li><button class="chip" type="button" data-filter="beach" aria-pressed="false">Beach</button></li>
-        <li><button class="chip" type="button" data-filter="wildlife" aria-pressed="false">Wildlife</button></li>
-      </ul>
+      <ul class="chips" data-chips></ul>
     </section>
 
-
     <section class="explore">
-
       <div class="map">
-        <img class="map__base" src="Images/ghana map.jpg" alt="Map of Ghana showing attraction locations">
-
-        <a class="map__pin map__pin--nature" style="--x: 45.0%; --y: 87.6%" href="#kakum" data-category="nature" title="Kakum National Park">
-          <span class="visually-hidden">Kakum National Park</span></a>
-
-        <a class="map__pin map__pin--history" style="--x: 45.0%; --y: 91.4%" href="#cape-coast" data-category="history" title="Cape Coast Castle">
-          <span class="visually-hidden">Cape Coast Castle</span></a>
-
-        <a class="map__pin map__pin--history" style="--x: 39.8%; --y: 90.8%" href="#elmina" data-category="history" title="Elmina Castle">
-          <span class="visually-hidden">Elmina Castle</span></a>
-
-        <a class="map__pin map__pin--history" style="--x: 64.0%; --y: 84.3%" href="#nkrumah" data-category="history" title="Kwame Nkrumah Memorial">
-          <span class="visually-hidden">Kwame Nkrumah Memorial</span></a>
-
-        <a class="map__pin map__pin--wildlife" style="--x: 32.8%; --y: 33.7%" href="#mole" data-category="wildlife" title="Mole National Park">
-          <span class="visually-hidden">Mole National Park</span></a>
-
-        <a class="map__pin map__pin--nature" style="--x: 63.4%; --y: 80.6%" href="#aburi" data-category="nature" title="Aburi Botanical Gardens">
-          <span class="visually-hidden">Aburi Botanical Gardens</span></a>
-
-        <a class="map__pin map__pin--nature" style="--x: 77.1%; --y: 60.1%" href="#wli" data-category="nature" title="Wli Waterfalls">
-          <span class="visually-hidden">Wli Waterfalls</span></a>
-
-        <a class="map__pin map__pin--wildlife" style="--x: 67.5%; --y: 82.0%" href="#shai" data-category="wildlife" title="Shai Hills">
-          <span class="visually-hidden">Shai Hills</span></a>
-
-        <a class="map__pin map__pin--beach" style="--x: 66.3%; --y: 84.9%" href="#labadi" data-category="beach" title="Labadi Beach">
-          <span class="visually-hidden">Labadi Beach</span></a>
-
-        <a class="map__pin map__pin--nature" style="--x: 76.0%; --y: 62.9%" href="#afadjato" data-category="nature" title="Mount Afadjato">
-          <span class="visually-hidden">Mount Afadjato</span></a>
-
-        <a class="map__pin map__pin--nature" style="--x: 67.5%; --y: 64.4%" href="#lake-volta" data-category="nature" title="Lake Volta">
-          <span class="visually-hidden">Lake Volta</span></a>
-
+        <img class="map__base" src="Images/ghana map.jpg" alt="Map of Ghana showing attraction locations" width="800" height="1039">
+        <div data-pins></div>
         <div class="legend">
           <h2 class="legend__title">Legend</h2>
-          <ul>
-            <li><span class="legend__dot legend__dot--nature"></span>Nature</li>
-            <li><span class="legend__dot legend__dot--history"></span>History</li>
-            <li><span class="legend__dot legend__dot--wildlife"></span>Wildlife</li>
-            <li><span class="legend__dot legend__dot--beach"></span>Beach</li>
-            <li><span class="legend__dot legend__dot--culture"></span>Culture</li>
-          </ul>
+          <ul data-legend></ul>
         </div>
       </div>
 
-
       <aside class="places">
         <h2 class="places__title">All places</h2>
-
-        <ul class="places__list">
-          <li id="kakum" class="place" data-category="nature">
-            <span class="place__dot place__dot--nature"></span>
-            <div>
-              <h3 class="place__name"><a href="kakum.html">Kakum National Park</a></h3>
-              <p class="place__meta">Central Region · ★ 4.8</p>
-            </div>
-          </li>
-
-          <li id="cape-coast" class="place" data-category="history">
-            <span class="place__dot place__dot--history"></span>
-            <div>
-              <h3 class="place__name"><a href="cape-coast-castle.html">Cape Coast Castle</a></h3>
-              <p class="place__meta">Central Region · ★ 4.7</p>
-            </div>
-          </li>
-
-          <li id="elmina" class="place" data-category="history">
-            <span class="place__dot place__dot--history"></span>
-            <div>
-              <h3 class="place__name"><a href="elmina-castle.html">Elmina Castle</a></h3>
-              <p class="place__meta">Central Region · ★ 4.6</p>
-            </div>
-          </li>
-
-          <li id="nkrumah" class="place" data-category="history">
-            <span class="place__dot place__dot--history"></span>
-            <div>
-              <h3 class="place__name"><a href="kwame-nkrumah.html">Kwame Nkrumah Memorial</a></h3>
-              <p class="place__meta">Greater Accra · ★ 4.6</p>
-            </div>
-          </li>
-
-          <li id="mole" class="place" data-category="wildlife">
-            <span class="place__dot place__dot--wildlife"></span>
-            <div>
-              <h3 class="place__name"><a href="mole.html">Mole National Park</a></h3>
-              <p class="place__meta">Savannah Region · ★ 4.7</p>
-            </div>
-          </li>
-
-          <li id="aburi" class="place" data-category="nature">
-            <span class="place__dot place__dot--nature"></span>
-            <div>
-              <h3 class="place__name"><a href="aburi.html">Aburi Botanical Gardens</a></h3>
-              <p class="place__meta">Eastern Region · ★ 4.5</p>
-            </div>
-          </li>
-
-          <li id="wli" class="place" data-category="nature">
-            <span class="place__dot place__dot--nature"></span>
-            <div>
-              <h3 class="place__name"><a href="wli-waterfalls.html">Wli Waterfalls</a></h3>
-              <p class="place__meta">Volta Region · ★ 4.8</p>
-            </div>
-          </li>
-
-          <li id="shai" class="place" data-category="wildlife">
-            <span class="place__dot place__dot--wildlife"></span>
-            <div>
-              <h3 class="place__name"><a href="shai-hills.html">Shai Hills</a></h3>
-              <p class="place__meta">Greater Accra · ★ 4.7</p>
-            </div>
-          </li>
-
-          <li id="labadi" class="place" data-category="beach">
-            <span class="place__dot place__dot--beach"></span>
-            <div>
-              <h3 class="place__name"><a href="labadi-beach.html">Labadi Beach</a></h3>
-              <p class="place__meta">Greater Accra · ★ 4.6</p>
-            </div>
-          </li>
-
-          <li id="afadjato" class="place" data-category="nature">
-            <span class="place__dot place__dot--nature"></span>
-            <div>
-              <h3 class="place__name"><a href="afadjato.html">Mount Afadjato</a></h3>
-              <p class="place__meta">Volta Region · ★ 4.9</p>
-            </div>
-          </li>
-
-          <li id="lake-volta" class="place" data-category="nature">
-            <span class="place__dot place__dot--nature"></span>
-            <div>
-              <h3 class="place__name"><a href="lake-volta.html">Lake Volta</a></h3>
-              <p class="place__meta">Volta Region · ★ 4.8</p>
-            </div>
-          </li>
-        </ul>
+        <ul class="places__list" data-place-list></ul>
         <p class="empty" hidden>No places match. Try another word or category.</p>
       </aside>
-
     </section>
 
   </main>

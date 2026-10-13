@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wandr — Discover Ghana</title>
+  <meta name="description" content="Plan travel in Ghana in one place: attractions, trips, stays and other travellers.">
 
   <link rel="icon" type="image/png" href="Images/favicon.png">
 
@@ -14,12 +15,11 @@
 
   <link rel="stylesheet" href="base.css">
 
-  <!-- defer: download the script now, but run it only after the HTML is
-       fully read. Without it, the script would run before the buttons exist. -->
-  <script src="app.js" defer></script>
+  <script>document.documentElement.classList.add("js");</script>
+  <script type="module" src="js/main.js"></script>
 </head>
 
-<body>
+<body data-page="home">
 
   <header class="site-header">
     <div class="site-header__inner">
@@ -36,10 +36,7 @@
           <li><a href="community.html">Community</a></li>
         </ul>
       </nav>
-      <!-- A real link now: signing in has its own page, signin.html. -->
       <a class="btn btn--solid" href="signin.html">Sign in</a>
-      <!-- Only shown on phones. aria-expanded tells screen readers whether
-           the menu is open; app.js flips it. -->
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">
         <span class="menu-toggle__bars" aria-hidden="true"></span>
         <span class="visually-hidden">Menu</span>
@@ -55,217 +52,35 @@
       <h1 class="intro__title">Discover Ghana</h1>
     </section>
 
-
     <section class="search">
-      <form class="search__form">
+      <form class="search__form" role="search">
         <label class="visually-hidden" for="search">Search attractions</label>
         <input class="search__input" type="search" id="search" name="search" placeholder="Search attractions...">
         <button class="btn btn--solid" type="submit">Search</button>
       </form>
     </section>
 
-
     <section class="categories">
       <h2 class="visually-hidden">Browse by category</h2>
-      <ul class="chips">
-        <li><button class="chip chip--active" type="button" data-filter="all" aria-pressed="true">All</button></li>
-        <li><button class="chip" type="button" data-filter="nature" aria-pressed="false">Nature</button></li>
-        <li><button class="chip" type="button" data-filter="history" aria-pressed="false">History</button></li>
-        <li><button class="chip" type="button" data-filter="culture" aria-pressed="false">Culture</button></li>
-        <li><button class="chip" type="button" data-filter="beach" aria-pressed="false">Beach</button></li>
-        <li><button class="chip" type="button" data-filter="wildlife" aria-pressed="false">Wildlife</button></li>
-      </ul>
+      <ul class="chips" data-chips></ul>
     </section>
-
 
     <section class="featured">
       <div class="section-head">
         <h2 class="section-head__title">Featured</h2>
         <a class="section-head__link" href="explore.html">See all</a>
       </div>
-
-      <!-- data-filter-list: app.js hides and shows the cards inside this list
-           when you search or pick a chip. -->
-      <ul class="card-grid" data-filter-list>
-        <li>
-          <a class="card" href="kakum.html">
-            <img class="card__img" src="Images/kakum 1.jpeg" alt="Rope walkway through the forest canopy at Kakum">
-            <div class="card__body">
-              <p class="card__tag">Nature</p>
-              <h3 class="card__title">Kakum National Park</h3>
-              <p class="card__region">Central Region</p>
-              <p class="card__rating">4.8</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card" href="cape-coast-castle.html">
-            <img class="card__img" src="Images/cape coast castle.jpeg" alt="White stone walls of Cape Coast Castle facing the sea">
-            <div class="card__body">
-              <p class="card__tag">History</p>
-              <h3 class="card__title">Cape Coast Castle</h3>
-              <p class="card__region">Central Region</p>
-              <p class="card__rating">4.7</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card" href="kwame-nkrumah.html">
-            <img class="card__img" src="Images/kwame nkrumah.jpg" alt="Kwame Nkrumah Memorial Park in Accra">
-            <div class="card__body">
-              <p class="card__tag">History</p>
-              <h3 class="card__title">Kwame Nkrumah Memorial</h3>
-              <p class="card__region">Greater Accra</p>
-              <p class="card__rating">4.6</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card" href="elmina-castle.html">
-            <img class="card__img" src="Images/elmina castle.jpg" alt="Elmina Castle from the harbour">
-            <div class="card__body">
-              <p class="card__tag">History</p>
-              <h3 class="card__title">Elmina Castle</h3>
-              <p class="card__region">Central Region</p>
-              <p class="card__rating">4.8</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card" href="mole.html">
-            <img class="card__img" src="Images/mole national park 1.jpeg" alt="Elephants at Mole National Park">
-            <div class="card__body">
-              <p class="card__tag">Wildlife</p>
-              <h3 class="card__title">Mole National Park</h3>
-              <p class="card__region">Savannah Region</p>
-              <p class="card__rating">4.7</p>
-            </div>
-          </a>
-        </li>
-      </ul>
+      <ul class="card-grid" data-list="featured"></ul>
       <p class="empty" hidden>No featured places match. Try another word or category.</p>
     </section>
 
-
     <section class="nearby">
       <div class="section-head">
-        <h2 class="section-head__title">Nearby you</h2>
+        <h2 class="section-head__title">Close to Accra</h2>
         <a class="section-head__link" href="explore.html">See all on the map</a>
       </div>
-
-      <ul class="card-list" data-filter-list>
-        <li>
-          <a class="card card--row" href="kakum.html">
-            <img class="card__img" src="Images/kakum 1.jpeg" alt="Kakum National Park canopy walk">
-            <div class="card__body">
-              <p class="card__tag">Nature</p>
-              <h3 class="card__title">Kakum National Park</h3>
-              <p class="card__region">Central Region</p>
-              <p class="card__rating">4.8</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card card--row" href="cape-coast-castle.html">
-            <img class="card__img" src="Images/cape coast castle.jpeg" alt="Cape Coast Castle courtyard">
-            <div class="card__body">
-              <p class="card__tag">History</p>
-              <h3 class="card__title">Cape Coast Castle</h3>
-              <p class="card__region">Central Region</p>
-              <p class="card__rating">4.7</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card card--row" href="elmina-castle.html">
-            <img class="card__img" src="Images/elmina castle.jpg" alt="Elmina Castle seen from the harbour">
-            <div class="card__body">
-              <p class="card__tag">History</p>
-              <h3 class="card__title">Elmina Castle</h3>
-              <p class="card__region">Central Region</p>
-              <p class="card__rating">4.6</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card card--row" href="mole.html">
-            <img class="card__img" src="Images/mole national park 1.jpeg" alt="Entrance of Mole National Park">
-            <div class="card__body">
-              <p class="card__tag">Wildlife</p>
-              <h3 class="card__title">Mole National Park</h3>
-              <p class="card__region">Savannah Region</p>
-              <p class="card__rating">4.7</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card card--row" href="aburi.html">
-            <img class="card__img" src="Images/aburi.jpg" alt="Terraced gardens at Aburi">
-            <div class="card__body">
-              <p class="card__tag">Nature</p>
-              <h3 class="card__title">Aburi Botanical Gardens</h3>
-              <p class="card__region">Eastern Region</p>
-              <p class="card__rating">4.5</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card card--row" href="wli-waterfalls.html">
-            <img class="card__img" src="Images/wli waterfalls.jpeg" alt="Wli Waterfalls in the Volta Region">
-            <div class="card__body">
-              <p class="card__tag">Nature</p>
-              <h3 class="card__title">Wli Waterfalls</h3>
-              <p class="card__region">Volta Region</p>
-              <p class="card__rating">4.8</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card card--row" href="shai-hills.html">
-            <img class="card__img" src="Images/shai hills.jpg" alt="Rock formations at Shai Hills">
-            <div class="card__body">
-              <p class="card__tag">Wildlife</p>
-              <h3 class="card__title">Shai Hills</h3>
-              <p class="card__region">Greater Accra</p>
-              <p class="card__rating">4.7</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card card--row" href="labadi-beach.html">
-            <img class="card__img" src="Images/labadi beach.jpg" alt="Labadi Beach shoreline">
-            <div class="card__body">
-              <p class="card__tag">Beach</p>
-              <h3 class="card__title">Labadi Beach</h3>
-              <p class="card__region">Greater Accra</p>
-              <p class="card__rating">4.6</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card card--row" href="afadjato.html">
-            <img class="card__img" src="Images/afadjato.jpeg" alt="Mount Afadjato rising above the treeline">
-            <div class="card__body">
-              <p class="card__tag">Nature</p>
-              <h3 class="card__title">Mount Afadjato</h3>
-              <p class="card__region">Volta Region</p>
-              <p class="card__rating">4.9</p>
-            </div>
-          </a>
-        </li>
-        <li>
-          <a class="card card--row" href="lake-volta.html">
-            <img class="card__img" src="Images/Lake-Volta-jpg.webp" alt="Boats on Lake Volta">
-            <div class="card__body">
-              <p class="card__tag">Nature</p>
-              <h3 class="card__title">Lake Volta</h3>
-              <p class="card__region">Volta Region</p>
-              <p class="card__rating">4.8</p>
-            </div>
-          </a>
-        </li>
-      </ul>
-      <p class="empty" hidden>No nearby places match. Try another word or category.</p>
+      <ul class="card-list" data-list="nearby"></ul>
+      <p class="empty" hidden>No places near Accra match. Try another word or category.</p>
     </section>
 
   </main>

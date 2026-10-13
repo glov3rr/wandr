@@ -1,5 +1,18 @@
 {
   "rewrites": [
     { "source": "/", "destination": "/home.html" }
+  ],
+  "redirects": [
+    { "source": "/kakum.html", "destination": "/place.html?id=kakum", "permanent": true },
+    { "source": "/cape-coast-castle.html", "destination": "/place.html?id=cape-coast", "permanent": true },
+    { "source": "/elmina-castle.html", "destination": "/place.html?id=elmina", "permanent": true },
+    { "source": "/kwame-nkrumah.html", "destination": "/place.html?id=nkrumah", "permanent": true },
+    { "source": "/mole.html", "destination": "/place.html?id=mole", "permanent": true },
+    { "source": "/aburi.html", "destination": "/place.html?id=aburi", "permanent": true },
+    { "source": "/wli-waterfalls.html", "destination": "/place.html?id=wli", "permanent": true },
+    { "source": "/shai-hills.html", "destination": "/place.html?id=shai", "permanent": true },
+    { "source": "/labadi-beach.html", "destination": "/place.html?id=labadi", "permanent": true },
+    { "source": "/afadjato.html", "destination": "/place.html?id=afadjato", "permanent": true },
+    { "source": "/lake-volta.html", "destination": "/place.html?id=lake-volta", "permanent": true }
   ]
 }

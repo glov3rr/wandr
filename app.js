@@ -1097,6 +1097,42 @@ const PLACE_IMAGES = {
   "lake-volta": "Lake-Volta-jpg.webp",
 };
 
+const PLACE_PINS = {
+  "kakum": [45.0, 87.6],
+  "cape-coast": [45.0, 91.4],
+  "elmina": [39.8, 90.8],
+  "nkrumah": [64.0, 84.3],
+  "mole": [32.8, 33.7],
+  "aburi": [63.4, 80.6],
+  "wli": [77.1, 60.1],
+  "shai": [67.5, 82.0],
+  "labadi": [66.3, 84.9],
+  "afadjato": [76.0, 62.9],
+  "lake-volta": [67.5, 64.4],
+};
+
+const REGION_COVERS = {
+  "Central": "cape coast castle.jpeg",
+  "Greater Accra": "labadi beach.jpg",
+  "Volta": "wli waterfalls.jpeg",
+  "Eastern": "aburi.jpg",
+  "Savannah": "mole national park 1.jpeg",
+  "Oti": "Lake-Volta-jpg.webp",
+};
+
+const BADGES = [
+  { name: "First stop", rule: "Visit any place", progress: (s) => [Math.min(s.count, 1), 1] },
+  { name: "Castle coast", rule: "All of Central's places", progress: (s) => s.inRegion("Central") },
+  { name: "Accra local", rule: "All of Greater Accra's places", progress: (s) => s.inRegion("Greater Accra") },
+  { name: "Volta highlands", rule: "All of Volta's places", progress: (s) => s.inRegion("Volta") },
+  { name: "Into the north", rule: "Visit Mole National Park", progress: (s) => [s.visited.includes("mole") ? 1 : 0, 1] },
+  { name: "Halfway there", rule: "Visit 6 places", progress: (s) => [Math.min(s.count, 6), 6] },
+  { name: "All of Wandr", rule: "Visit all 11 places", progress: (s) => [s.count, s.total] },
+];
+
+const MEDAL = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5-4.8-4.6 6.6-.9z"/></svg>';
+const LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+
 const DEFAULT_PREFS = {
   tripReminders: true,
   roomReplies: true,
@@ -1144,12 +1180,21 @@ function setVisited(list) {
   store.set("visited", list);
   renderAccount();
   syncVisitedButton();
-  renderProgress();
+  renderProfile();
+}
+
+function toggleVisited(id) {
+  const visited = getVisited();
+  const been = visited.includes(id);
+  setVisited(been ? visited.filter((v) => v !== id) : [...visited, id]);
+  return !been;
 }
 
 function signInAs(name, email, visited) {
   const existing = getUser();
-  store.set("user", existing && existing.email === email ? existing : { name, email });
+  store.set("user", existing && existing.email === email
+    ? existing
+    : { name, email, joined: new Date().toISOString() });
   if (!store.get("visited", null)) store.set("visited", visited);
 }
 
@@ -1183,7 +1228,11 @@ function exploredStats() {
     total: ids.length,
     percent: Math.round((visited.length / ids.length) * 100),
     regions: regions.size,
-    next: nextId ? PLACES[nextId] : null,
+    nextId,
+    inRegion(region) {
+      const inside = ids.filter((id) => PLACES[id].region === region);
+      return [inside.filter((id) => visited.includes(id)).length, inside.length];
+    },
   };
 }
 
@@ -1226,34 +1275,112 @@ function syncVisitedButton() {
   button.textContent = been ? "Visited ✓" : "I've been here";
 }
 
-function renderProgress() {
-  const page = $("[data-settings]");
+let placeFilter = "all";
+
+function renderProfile() {
+  const settings = $("[data-settings]");
   const user = getUser();
-  if (!page || !user) return;
+  if (!settings || !user) return;
 
   const stats = exploredStats();
+  const earned = BADGES.filter((badge) => {
+    const [done, need] = badge.progress(stats);
+    return done >= need;
+  }).length;
 
-  $$("[data-avatar]", page).forEach((slot) => { slot.innerHTML = avatarHTML(user); });
-  $("[data-user-name]", page).textContent = user.name;
-  $("[data-user-progress]", page).textContent = `${stats.percent}% of Ghana explored`;
-  $("[data-avatar-remove]", page).hidden = !user.avatar;
+  $$("[data-avatar]").forEach((slot) => { slot.innerHTML = avatarHTML(user); });
+  $("[data-user-name]").textContent = user.name;
+  $("[data-user-region]").textContent = user.region ? `${user.region} Region, Ghana` : "Ghana";
+  $("[data-user-since]").textContent = new Date(user.joined || Date.now())
+    .toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+  $("[data-user-bio]").textContent = user.bio || "";
+  $("[data-cover]").src = "Images/" + (REGION_COVERS[user.region] || "kakum 1.jpeg");
+  $("[data-avatar-remove]").hidden = !user.avatar;
 
-  $("[data-explored-percent]", page).textContent = stats.percent + "%";
-  const bar = $("[data-explored-bar]", page);
-  bar.setAttribute("aria-valuenow", stats.count);
-  $("span", bar).style.width = stats.percent + "%";
-  $("[data-explored-places]", page).textContent = `${stats.count} of ${stats.total}`;
-  $("[data-explored-regions]", page).textContent = `${stats.regions} of ${GHANA_REGIONS}`;
-  $("[data-explored-next]", page).innerHTML = stats.next
-    ? `<a href="${stats.next.page}">${stats.next.name}</a>`
-    : "All done";
+  $('[data-stat="percent"]').textContent = stats.percent + "%";
+  $('[data-stat="places"]').textContent = `${stats.count} / ${stats.total}`;
+  $('[data-stat="regions"]').textContent = `${stats.regions} / ${GHANA_REGIONS}`;
+  $('[data-stat="badges"]').textContent = `${earned} / ${BADGES.length}`;
+  $("[data-nav-count]").textContent = stats.percent + "%";
+
+  const circumference = 2 * Math.PI * 52;
+  requestAnimationFrame(() => {
+    $("[data-ring]").style.strokeDashoffset = circumference * (1 - stats.percent / 100);
+  });
+  $("[data-ring-percent]").textContent = stats.percent + "%";
+  $("[data-ring-summary]").textContent = stats.count
+    ? `You've been to ${stats.count} of ${stats.total} places, across ${stats.regions} of Ghana's ${GHANA_REGIONS} regions.`
+    : "You haven't marked any places yet. Start with somewhere you've already been.";
+
+  const next = stats.nextId ? PLACES[stats.nextId] : null;
+  const nextCard = $("[data-next-card]");
+  nextCard.classList.toggle("next-card--done", !next);
+  nextCard.innerHTML = next
+    ? `
+      <img src="Images/${PLACE_IMAGES[stats.nextId]}" alt="">
+      <p class="eyebrow">Next up</p>
+      <h3 class="next-card__name"><a href="${next.page}">${next.name}</a></h3>
+      <p class="next-card__region">${next.region} Region</p>
+      <div class="next-card__actions">
+        <a class="btn btn--solid" href="${next.page}">Plan a visit</a>
+        <button class="btn" type="button" data-place="${stats.nextId}">I've been here</button>
+      </div>`
+    : `
+      <p class="eyebrow">All done</p>
+      <h3 class="next-card__name">You've been everywhere on Wandr</h3>
+      <p class="next-card__region">New places are added often. Check back soon.</p>`;
+
+  $("[data-badge-count]").textContent = `${earned} of ${BADGES.length} earned`;
+  $("[data-badges]").innerHTML = BADGES.map((badge) => {
+    const [done, need] = badge.progress(stats);
+    const got = done >= need;
+    return `
+      <li>
+        <div class="badge-tile${got ? " is-earned" : ""}">
+          <span class="badge-tile__medal">${got ? MEDAL : LOCK}</span>
+          <p class="badge-tile__name">${badge.name}</p>
+          <p class="badge-tile__rule">${got ? "Earned" : `${badge.rule} · ${done}/${need}`}</p>
+          <span class="badge-tile__progress"><span style="width: ${(done / need) * 100}%"></span></span>
+        </div>
+      </li>`;
+  }).join("");
+
+  const countdown = $("[data-countdown]");
+  const days = Math.ceil((new Date(countdown.dataset.date + "T00:00") - new Date()) / 86400000);
+  countdown.innerHTML = days > 0
+    ? `${days} <span>${days === 1 ? "day" : "days"} to go</span>`
+    : `<span>This trip has started. Enjoy it.</span>`;
+
+  const steps = [
+    { label: "Add a profile photo", done: Boolean(user.avatar), field: "avatar-file" },
+    { label: "Choose your home region", done: Boolean(user.region), field: "pf-region" },
+    { label: "Add your phone number", done: Boolean(user.phone), field: "pf-phone" },
+    { label: "Write a short bio", done: Boolean(user.bio), field: "pf-bio" },
+    { label: "Mark a place you've visited", done: stats.count > 0, section: "progress" },
+  ];
+  const complete = Math.round((steps.filter((step) => step.done).length / steps.length) * 100);
+  $("[data-complete-percent]").textContent = complete + "%";
+  $("[data-complete-bar]").style.width = complete + "%";
+  $("[data-checklist]").innerHTML = steps.map((step) => `
+    <li class="${step.done ? "is-done" : ""}">
+      <span class="checklist__mark" aria-hidden="true">✓</span>
+      <span class="checklist__label">${step.label}</span>
+      ${step.done ? "" : `<button class="link-btn checklist__go" type="button"
+        data-go="${step.section || "account"}" ${step.field ? `data-focus="${step.field}"` : ""}>Add</button>`}
+    </li>`).join("");
+
+  $("[data-map-pins]").innerHTML = Object.entries(PLACE_PINS).map(([id, [x, y]]) => {
+    const been = stats.visited.includes(id);
+    return `<a class="map-pin${been ? " is-done" : ""}" href="${PLACES[id].page}"
+      style="--x: ${x}%; --y: ${y}%" title="${PLACES[id].name}"
+      aria-label="${PLACES[id].name}, ${been ? "visited" : "not visited yet"}"></a>`;
+  }).join("");
 
   const byRegion = {};
   Object.entries(PLACES).forEach(([id, place]) => {
     (byRegion[place.region] ||= []).push(id);
   });
-
-  $("[data-region-list]", page).innerHTML = Object.entries(byRegion).map(([region, ids]) => {
+  $("[data-region-list]").innerHTML = Object.entries(byRegion).map(([region, ids]) => {
     const done = ids.filter((id) => stats.visited.includes(id)).length;
     return `
       <li>
@@ -1263,12 +1390,18 @@ function renderProgress() {
       </li>`;
   }).join("");
 
-  $("[data-place-grid]", page).innerHTML = Object.entries(PLACES).map(([id, place]) => {
+  const shown = Object.entries(PLACES).filter(([id]) => {
+    const been = stats.visited.includes(id);
+    return placeFilter === "all" || (placeFilter === "visited" ? been : !been);
+  });
+
+  $("[data-place-grid]").innerHTML = shown.map(([id, place]) => {
     const been = stats.visited.includes(id);
     return `
       <li>
         <article class="place-card${been ? " is-visited" : ""}">
           <img class="place-card__img" src="Images/${PLACE_IMAGES[id]}" alt="">
+          ${been ? '<span class="place-card__stamp">Visited</span>' : ""}
           <div class="place-card__body">
             <h3 class="place-card__name"><a href="${place.page}">${place.name}</a></h3>
             <p class="place-card__region">${place.region}</p>
@@ -1279,6 +1412,12 @@ function renderProgress() {
         </article>
       </li>`;
   }).join("");
+
+  const empty = $("[data-place-empty]");
+  empty.hidden = shown.length > 0;
+  empty.textContent = placeFilter === "visited"
+    ? "No places marked yet. Switch to All and tick the ones you've been to."
+    : "You've been to every place on Wandr.";
 }
 
 function markField(input, message) {
@@ -1308,7 +1447,7 @@ function markField(input, message) {
   window.addEventListener("storage", () => {
     renderAccount();
     syncVisitedButton();
-    renderProgress();
+    renderProfile();
   });
 
   const button = $("[data-visited]");
@@ -1329,90 +1468,131 @@ function markField(input, message) {
     }
 
     const id = currentPlaceId();
-    const visited = getVisited();
-    const been = visited.includes(id);
-    setVisited(been ? visited.filter((v) => v !== id) : [...visited, id]);
-
+    const added = toggleVisited(id);
     const stats = exploredStats();
-    toast(been
-      ? `${PLACES[id].name} removed from your places.`
-      : `${PLACES[id].name} added. You've explored ${stats.count} of ${stats.total} places.`);
+    toast(added
+      ? `${PLACES[id].name} added. You've explored ${stats.count} of ${stats.total} places.`
+      : `${PLACES[id].name} removed from your places.`);
   });
 })();
 
 (function setupProfilePage() {
-  const page = $("[data-settings]");
-  if (!page) return;
+  const settings = $("[data-settings]");
+  if (!settings) return;
 
   const user = getUser();
-  $("[data-signed-out]", page).hidden = Boolean(user);
-  $("[data-signed-in]", page).hidden = !user;
-  if (!user) {
-    $("[data-section-title]", page).textContent = "Signed out";
-    return;
-  }
+  $("[data-signed-out]").hidden = Boolean(user);
+  $$("[data-signed-in]").forEach((part) => { part.hidden = !user; });
+  if (!user) return;
 
   const titles = {};
-  $$("[data-section-link]", page).forEach((link) => {
-    titles[link.dataset.sectionLink] = link.textContent.trim();
+  $$("[data-section-link]").forEach((link) => {
+    titles[link.dataset.sectionLink] = $("span", link).textContent.trim();
   });
 
-  function showSection(name) {
-    if (!titles[name]) name = "account";
-    $$("[data-panel]", page).forEach((panel) => { panel.hidden = panel.dataset.panel !== name; });
-    $$("[data-section-link]", page).forEach((link) => {
+  function showSection(name, focusId) {
+    if (!titles[name]) name = "overview";
+    $$("[data-panel]").forEach((panel) => { panel.hidden = panel.dataset.panel !== name; });
+    $$("[data-section-link]").forEach((link) => {
       if (link.dataset.sectionLink === name) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     });
-    $("[data-section-title]", page).textContent = titles[name];
+    $("[data-section-title]").textContent = titles[name];
+    if (location.hash.slice(1) !== name) history.replaceState(null, "", "#" + name);
+    if (focusId) {
+      const target = document.getElementById(focusId);
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.focus({ preventScroll: true });
+    }
   }
 
-  function sectionFromAddress() {
-    showSection(location.hash.slice(1));
+  function goTo(name, focusId) {
+    showSection(name, focusId);
+    if (!focusId) settings.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  $$("[data-section-link]", page).forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      history.replaceState(null, "", "#" + link.dataset.sectionLink);
-      showSection(link.dataset.sectionLink);
-      if (window.matchMedia("(max-width: 760px)").matches) {
-        $(".settings__main", page).scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("[data-section-link], [data-go]");
+    if (!link) return;
+    event.preventDefault();
+    goTo(link.dataset.sectionLink || link.dataset.go, link.dataset.focus);
+  });
+
+  window.addEventListener("hashchange", () => showSection(location.hash.slice(1)));
+  showSection(location.hash.slice(1));
+  renderProfile();
+
+  settings.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-place]");
+    if (!button) return;
+    const id = button.dataset.place;
+    const added = toggleVisited(id);
+    const again = $(`.place-grid [data-place="${id}"]`);
+    if (again && button.closest(".place-grid")) again.focus();
+    toast(added ? `${PLACES[id].name} added to your places.` : `${PLACES[id].name} removed.`);
+  });
+
+  setupChips($("[data-place-filter]"), (value) => {
+    placeFilter = value;
+    renderProfile();
+  });
+
+  $$("[data-toggle-password]", settings).forEach((button) => {
+    button.addEventListener("click", () => {
+      const input = button.previousElementSibling;
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      button.textContent = show ? "Hide" : "Show";
+      button.setAttribute("aria-label", show ? "Hide password" : "Show password");
     });
   });
 
-  window.addEventListener("hashchange", sectionFromAddress);
-  sectionFromAddress();
-  renderProgress();
-
-  const account = $('[data-form="account"]', page);
+  const account = $('[data-form="account"]');
+  const fields = account.elements;
   const count = $("[data-count]", account);
+  const saveBar = $("[data-save-bar]", account);
+  const KEYS = ["name", "email", "emailVisibility", "phoneVisibility", "phoneCode", "phone", "region", "bio"];
+  const DEFAULTS = { emailVisibility: "private", phoneVisibility: "private", phoneCode: "+233" };
+
+  function savedValues() {
+    const current = getUser();
+    return Object.fromEntries(KEYS.map((key) => [key, current[key] || DEFAULTS[key] || ""]));
+  }
+
+  function formValues() {
+    return Object.fromEntries(KEYS.map((key) => [key, fields[key].value.trim()]));
+  }
+
+  function isDirty() {
+    const saved = savedValues();
+    const now = formValues();
+    return KEYS.some((key) => saved[key] !== now[key]);
+  }
+
+  function updateSaveBar() {
+    const dirty = isDirty();
+    saveBar.classList.toggle("is-dirty", dirty);
+    $("[data-save-status]", saveBar).textContent = dirty ? "You have unsaved changes" : "All changes saved";
+    $$("button", saveBar).forEach((button) => { button.disabled = !dirty; });
+  }
 
   function fillAccount() {
-    const current = getUser();
-    const fields = account.elements;
-    fields.name.value = current.name || "";
-    fields.email.value = current.email || "";
-    fields.emailVisibility.value = current.emailVisibility || "private";
-    fields.phoneVisibility.value = current.phoneVisibility || "private";
-    fields.phoneCode.value = current.phoneCode || "+233";
-    fields.phone.value = current.phone || "";
-    fields.region.value = current.region || "";
-    fields.bio.value = current.bio || "";
+    const saved = savedValues();
+    KEYS.forEach((key) => { fields[key].value = saved[key]; });
     count.textContent = `${fields.bio.value.length} / 160`;
     $$("input", account).forEach((input) => markField(input, ""));
+    updateSaveBar();
   }
 
   fillAccount();
 
-  account.elements.bio.addEventListener("input", () => {
-    count.textContent = `${account.elements.bio.value.length} / 160`;
+  account.addEventListener("input", (event) => {
+    if (event.target === fields.bio) count.textContent = `${fields.bio.value.length} / 160`;
+    if (event.target.matches("input")) markField(event.target, "");
+    updateSaveBar();
   });
 
-  $$("input", account).forEach((input) => {
-    input.addEventListener("input", () => markField(input, ""));
-  });
+  account.addEventListener("change", updateSaveBar);
 
   account.addEventListener("reset", (event) => {
     event.preventDefault();
@@ -1422,13 +1602,12 @@ function markField(input, message) {
 
   account.addEventListener("submit", (event) => {
     event.preventDefault();
-    const fields = account.elements;
-    const email = fields.email.value.trim();
-    const phone = fields.phone.value.replace(/\s/g, "");
+    const values = formValues();
+    const phone = values.phone.replace(/\s/g, "");
 
     const ok = [
-      markField(fields.name, fields.name.value.trim().length >= 2 ? "" : "Enter your name."),
-      markField(fields.email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? "" : "Enter a full email address, like ama@example.com."),
+      markField(fields.name, values.name.length >= 2 ? "" : "Enter your name."),
+      markField(fields.email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email) ? "" : "Enter a full email address, like ama@example.com."),
       markField(fields.phone, !phone || /^\d{7,12}$/.test(phone) ? "" : "Use digits only, without the country code."),
     ].every(Boolean);
 
@@ -1437,22 +1616,18 @@ function markField(input, message) {
       return;
     }
 
-    updateUser({
-      name: fields.name.value.trim(),
-      email,
-      emailVisibility: fields.emailVisibility.value,
-      phoneVisibility: fields.phoneVisibility.value,
-      phoneCode: fields.phoneCode.value,
-      phone: fields.phone.value.trim(),
-      region: fields.region.value,
-      bio: fields.bio.value.trim(),
-    });
+    updateUser(values);
     renderAccount();
-    renderProgress();
+    renderProfile();
+    updateSaveBar();
     toast("Your profile is saved.");
   });
 
-  const fileInput = $("[data-avatar-input]", page);
+  window.addEventListener("beforeunload", (event) => {
+    if (isDirty()) event.preventDefault();
+  });
+
+  const fileInput = $("[data-avatar-input]");
 
   fileInput.addEventListener("change", () => {
     const file = fileInput.files[0];
@@ -1471,7 +1646,7 @@ function markField(input, message) {
     reader.addEventListener("load", () => {
       const image = new Image();
       image.addEventListener("load", () => {
-        const size = 240;
+        const size = 256;
         const canvas = document.createElement("canvas");
         canvas.width = size;
         canvas.height = size;
@@ -1482,7 +1657,7 @@ function markField(input, message) {
           0, 0, size, size);
         const saved = updateUser({ avatar: canvas.toDataURL("image/jpeg", 0.85) });
         renderAccount();
-        renderProgress();
+        renderProfile();
         toast(saved ? "Profile photo updated." : "Your browser couldn't save that photo.");
       });
       image.src = reader.result;
@@ -1490,25 +1665,14 @@ function markField(input, message) {
     reader.readAsDataURL(file);
   });
 
-  $("[data-avatar-remove]", page).addEventListener("click", () => {
+  $("[data-avatar-remove]").addEventListener("click", () => {
     updateUser({ avatar: null });
     renderAccount();
-    renderProgress();
+    renderProfile();
     toast("Profile photo removed.");
   });
 
-  $("[data-place-grid]", page).addEventListener("click", (event) => {
-    const button = event.target.closest("[data-place]");
-    if (!button) return;
-    const id = button.dataset.place;
-    const visited = getVisited();
-    const been = visited.includes(id);
-    setVisited(been ? visited.filter((v) => v !== id) : [...visited, id]);
-    $(`[data-place="${id}"]`, page).focus();
-    toast(been ? `${PLACES[id].name} removed.` : `${PLACES[id].name} added to your places.`);
-  });
-
-  const password = $('[data-form="password"]', page);
+  const password = $('[data-form="password"]');
   const newPassword = password.elements.next;
   const meter = $("[data-meter]", password);
   const rules = {
@@ -1567,7 +1731,7 @@ function markField(input, message) {
     toast("Password updated.");
   });
 
-  const prefs = $('[data-form="preferences"]', page);
+  const prefs = $('[data-form="preferences"]');
   const savedPrefs = { ...DEFAULT_PREFS, ...store.get("prefs", {}) };
 
   Object.entries(savedPrefs).forEach(([key, value]) => {
@@ -1585,13 +1749,13 @@ function markField(input, message) {
     toast("Preference saved.");
   });
 
-  $("[data-sign-out]", page).addEventListener("click", () => {
+  $("[data-sign-out]").addEventListener("click", () => {
     store.remove("user");
     store.remove("visited");
     location.href = "home.html";
   });
 
-  $("[data-delete-account]", page).addEventListener("click", () => {
+  $("[data-delete-account]").addEventListener("click", () => {
     openDialog({
       title: "Delete your account?",
       submitLabel: "Delete account",
@@ -1604,7 +1768,7 @@ function markField(input, message) {
       onSubmit(form) {
         const input = form.elements.confirm;
         if (input.value.trim().toUpperCase() !== "DELETE") {
-          input.setCustomValidity("Type DELETE, in capitals, to confirm.");
+          input.setCustomValidity("Type DELETE to confirm.");
           input.reportValidity();
           input.addEventListener("input", () => input.setCustomValidity(""), { once: true });
           return false;

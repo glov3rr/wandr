@@ -52,37 +52,59 @@
 
   <main class="page">
 
-    <section class="settings" data-settings>
+    <div class="settings__signedout" data-signed-out hidden>
+      <h1 class="settings__title">Sign in to see your profile</h1>
+      <p class="settings__lead">Your profile keeps your details, the places you've been and how much of Ghana you've explored.</p>
+      <div class="settings__actions">
+        <a class="btn btn--solid" href="signin.html">Sign in</a>
+        <a class="btn" href="signin.html#create">Create account</a>
+      </div>
+    </div>
+
+    <section class="hero-card" data-signed-in>
+      <div class="hero-card__cover">
+        <img data-cover src="Images/kakum 1.jpeg" alt="">
+      </div>
+
+      <div class="hero-card__body">
+        <span class="hero-card__avatar" data-avatar></span>
+
+        <div class="hero-card__who">
+          <h1 class="hero-card__name" data-user-name></h1>
+          <p class="hero-card__meta">
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg><span data-user-region></span></span>
+            <span><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Member since <span data-user-since></span></span>
+          </p>
+          <p class="hero-card__bio" data-user-bio></p>
+        </div>
+
+        <a class="btn hero-card__edit" href="#account" data-go="account"><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg>Edit profile</a>
+      </div>
+
+      <ul class="hero-card__stats">
+        <li><strong data-stat="percent">0%</strong><span>of Ghana explored</span></li>
+        <li><strong data-stat="places">0</strong><span>places visited</span></li>
+        <li><strong data-stat="regions">0</strong><span>regions visited</span></li>
+        <li><strong data-stat="badges">0</strong><span>badges earned</span></li>
+      </ul>
+    </section>
+
+
+    <section class="settings" data-settings data-signed-in>
 
       <header class="settings__head">
-        <p class="settings__crumbs"><span>Profile</span><span aria-hidden="true">›</span><span data-section-title>Account</span></p>
+        <p class="settings__crumbs"><span>Profile</span><span aria-hidden="true">›</span><span data-section-title>Overview</span></p>
         <a class="settings__close" href="home.html" aria-label="Close and go home">×</a>
       </header>
 
-      <div class="settings__signedout" data-signed-out hidden>
-        <h1 class="settings__title">Sign in to see your profile</h1>
-        <p class="settings__lead">Your profile keeps your details, the places you've been and how much of Ghana you've explored.</p>
-        <div class="settings__actions">
-          <a class="btn btn--solid" href="signin.html">Sign in</a>
-          <a class="btn" href="signin.html#create">Create account</a>
-        </div>
-      </div>
-
-      <div class="settings__body" data-signed-in>
+      <div class="settings__body">
 
         <aside class="settings__side">
-          <div class="me">
-            <span class="me__avatar" data-avatar></span>
-            <span class="me__text">
-              <span class="me__name" data-user-name></span>
-              <span class="me__meta" data-user-progress></span>
-            </span>
-          </div>
-
           <nav aria-label="Profile sections">
             <ul class="settings__nav">
+            <li><a class="settings__link" href="#overview" data-section-link="overview"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Overview</span></a></li>
             <li><a class="settings__link" href="#account" data-section-link="account"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span>Account</span></a></li>
-            <li><a class="settings__link" href="#progress" data-section-link="progress"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><span>My Ghana</span></a></li>
+            <li><a class="settings__link" href="#progress" data-section-link="progress"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><span>My Ghana</span><span class="settings__count" data-nav-count></span></a></li>
             <li><a class="settings__link" href="#password" data-section-link="password"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Password</span></a></li>
             <li><a class="settings__link" href="#preferences" data-section-link="preferences"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg><span>Preferences</span></a></li>
               <li><button class="settings__link" type="button" data-sign-out><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg><span>Sign out</span></button></li>
@@ -95,25 +117,109 @@
 
         <div class="settings__main">
 
-          <section class="panel" id="account" data-panel="account" aria-labelledby="account-title">
-            <h1 class="panel__title" id="account-title">Account</h1>
+          <section class="panel" id="overview" data-panel="overview" aria-labelledby="overview-title">
+            <h2 class="panel__title" id="overview-title">Overview</h2>
+            <p class="panel__lead">Where you've been, what's next and what's left to set up.</p>
+
+            <div class="duo">
+              <article class="ring-card">
+                <div class="ring">
+                  <svg viewBox="0 0 120 120" aria-hidden="true">
+                    <circle class="ring__track" cx="60" cy="60" r="52"/>
+                    <circle class="ring__value" cx="60" cy="60" r="52" data-ring/>
+                  </svg>
+                  <span class="ring__center"><strong data-ring-percent>0%</strong><span>explored</span></span>
+                </div>
+                <div class="ring-card__text">
+                  <h3 class="card-title">Your Ghana so far</h3>
+                  <p data-ring-summary></p>
+                  <a class="text-link" href="#progress" data-go="progress">Update places ›</a>
+                </div>
+              </article>
+
+              <article class="next-card" data-next-card></article>
+            </div>
+
+            <div class="section-row">
+              <h3 class="panel__subtitle">Badges</h3>
+              <span class="section-row__meta" data-badge-count></span>
+            </div>
+            <ul class="badges" data-badges></ul>
+
+            <div class="duo">
+              <article class="trip-card">
+                <p class="eyebrow">Upcoming trip</p>
+                <h3 class="card-title">Coast &amp; Castles Weekend</h3>
+                <p class="trip-card__dates">14 – 16 February 2027 · Central Region</p>
+                <p class="trip-card__countdown" data-countdown data-date="2027-02-14"></p>
+                <ul class="tags">
+                  <li class="tag">Kakum</li>
+                  <li class="tag">Cape Coast Castle</li>
+                  <li class="tag">Elmina Castle</li>
+                  <li class="tag">Labadi Beach</li>
+                </ul>
+                <a class="text-link" href="trips.html">See all trips ›</a>
+              </article>
+
+              <article class="complete-card">
+                <div class="complete-card__top">
+                  <h3 class="card-title">Finish your profile</h3>
+                  <strong data-complete-percent>0%</strong>
+                </div>
+                <span class="complete-card__bar"><span data-complete-bar></span></span>
+                <ul class="checklist" data-checklist></ul>
+              </article>
+            </div>
+          </section>
+
+
+          <section class="panel" id="account" data-panel="account" aria-labelledby="account-title" hidden>
+            <h2 class="panel__title" id="account-title">Account</h2>
             <p class="panel__lead">How you appear to other travellers on Wandr.</p>
 
             <div class="photo">
               <span class="photo__frame" data-avatar></span>
-              <div class="photo__actions">
-                <label class="btn photo__change" for="avatar-file">Change image <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></label>
-                <input class="visually-hidden" type="file" id="avatar-file" accept="image/*" data-avatar-input>
-                <button class="link-btn photo__remove" type="button" data-avatar-remove>Remove</button>
+              <div class="photo__text">
+                <p class="photo__title">Profile photo</p>
+                <p class="photo__hint">A clear photo of your face helps trip buddies recognise you. JPG or PNG, up to 2 MB.</p>
+                <div class="photo__actions">
+                  <label class="btn photo__change" for="avatar-file"><svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Change image</label>
+                  <input class="visually-hidden" type="file" id="avatar-file" accept="image/*" data-avatar-input>
+                  <button class="link-btn photo__remove" type="button" data-avatar-remove>Remove</button>
+                </div>
               </div>
-              <p class="photo__hint">JPG or PNG, up to 2 MB.</p>
             </div>
 
             <form class="panel__form" data-form="account" novalidate>
-              <p class="field">
-                <label class="field__label" for="pf-name">Full name</label>
-                <input class="field__input" id="pf-name" name="name" autocomplete="name">
-              </p>
+              <div class="form-pair">
+                <p class="field">
+                  <label class="field__label" for="pf-name">Full name</label>
+                  <input class="field__input" id="pf-name" name="name" autocomplete="name">
+                </p>
+
+                <p class="field">
+                  <label class="field__label" for="pf-region">Home region</label>
+                  <select class="field__input" id="pf-region" name="region">
+                    <option value="">Choose a region</option>
+                  <option value="Ahafo">Ahafo</option>
+                  <option value="Ashanti">Ashanti</option>
+                  <option value="Bono">Bono</option>
+                  <option value="Bono East">Bono East</option>
+                  <option value="Central">Central</option>
+                  <option value="Eastern">Eastern</option>
+                  <option value="Greater Accra">Greater Accra</option>
+                  <option value="North East">North East</option>
+                  <option value="Northern">Northern</option>
+                  <option value="Oti">Oti</option>
+                  <option value="Savannah">Savannah</option>
+                  <option value="Upper East">Upper East</option>
+                  <option value="Upper West">Upper West</option>
+                  <option value="Volta">Volta</option>
+                  <option value="Western">Western</option>
+                  <option value="Western North">Western North</option>
+                  </select>
+                </p>
+              </div>
 
               <div class="field">
                 <span class="field__row">
@@ -148,84 +254,77 @@
               </div>
 
               <p class="field">
-                <label class="field__label" for="pf-region">Home region</label>
-                <select class="field__input" id="pf-region" name="region">
-                  <option value="">Choose a region</option>
-                  <option value="Ahafo">Ahafo</option>
-                  <option value="Ashanti">Ashanti</option>
-                  <option value="Bono">Bono</option>
-                  <option value="Bono East">Bono East</option>
-                  <option value="Central">Central</option>
-                  <option value="Eastern">Eastern</option>
-                  <option value="Greater Accra">Greater Accra</option>
-                  <option value="North East">North East</option>
-                  <option value="Northern">Northern</option>
-                  <option value="Oti">Oti</option>
-                  <option value="Savannah">Savannah</option>
-                  <option value="Upper East">Upper East</option>
-                  <option value="Upper West">Upper West</option>
-                  <option value="Volta">Volta</option>
-                  <option value="Western">Western</option>
-                  <option value="Western North">Western North</option>
-                </select>
-              </p>
-
-              <p class="field">
                 <label class="field__label" for="pf-bio">About you</label>
                 <textarea class="field__input" id="pf-bio" name="bio" rows="3" maxlength="160"
                           placeholder="Weekend hiker, always looking for the next waterfall."></textarea>
                 <span class="field__count" data-count>0 / 160</span>
               </p>
 
-              <div class="panel__actions">
-                <button class="btn" type="reset">Cancel</button>
-                <button class="btn btn--solid" type="submit">Save changes</button>
+              <div class="save-bar" data-save-bar>
+                <p class="save-bar__status" data-save-status>All changes saved</p>
+                <div class="save-bar__buttons">
+                  <button class="btn" type="reset" disabled>Discard</button>
+                  <button class="btn btn--solid" type="submit" disabled>Save changes</button>
+                </div>
               </div>
             </form>
           </section>
 
 
           <section class="panel" id="progress" data-panel="progress" aria-labelledby="progress-title" hidden>
-            <h1 class="panel__title" id="progress-title">My Ghana</h1>
+            <h2 class="panel__title" id="progress-title">My Ghana</h2>
             <p class="panel__lead">Tick off the places you've been and watch the map fill in.</p>
 
-            <div class="explored-hero">
-              <div class="explored-hero__top">
-                <span class="explored-hero__label">Ghana explored</span>
-                <strong class="explored-hero__percent" data-explored-percent>0%</strong>
+            <div class="map-duo">
+              <figure class="ghana-map">
+                <img src="Images/ghana map.jpg" alt="Map of Ghana with the places on Wandr marked">
+                <div data-map-pins></div>
+              </figure>
+
+              <div>
+                <ul class="map-legend">
+                  <li><span class="map-legend__dot map-legend__dot--done"></span>Visited</li>
+                  <li><span class="map-legend__dot"></span>Not yet</li>
+                </ul>
+                <h3 class="panel__subtitle">By region</h3>
+                <ul class="region-list" data-region-list></ul>
+                <p class="panel__note">Wandr lists places in 5 of Ghana's 16 regions so far.</p>
               </div>
-              <div class="explored-hero__bar" role="progressbar" aria-label="Places visited"
-                   aria-valuemin="0" aria-valuemax="11" aria-valuenow="0" data-explored-bar><span></span></div>
-              <dl class="explored-hero__stats">
-                <div><dt>Places visited</dt><dd data-explored-places>0 of 11</dd></div>
-                <div><dt>Regions visited</dt><dd data-explored-regions>0 of 16</dd></div>
-                <div><dt>Next up</dt><dd data-explored-next>—</dd></div>
-              </dl>
             </div>
 
-            <h2 class="panel__subtitle">By region</h2>
-            <ul class="region-list" data-region-list></ul>
-            <p class="panel__note">Wandr lists places in 5 of Ghana's 16 regions so far.</p>
-
-            <h2 class="panel__subtitle">Places</h2>
+            <div class="section-row">
+              <h3 class="panel__subtitle">Places</h3>
+              <ul class="chips chips--sm" data-place-filter>
+                <li><button class="chip chip--active" type="button" data-filter="all" aria-pressed="true">All</button></li>
+                <li><button class="chip" type="button" data-filter="visited" aria-pressed="false">Visited</button></li>
+                <li><button class="chip" type="button" data-filter="todo" aria-pressed="false">Not yet</button></li>
+              </ul>
+            </div>
             <ul class="place-grid" data-place-grid></ul>
+            <p class="empty" data-place-empty hidden></p>
           </section>
 
 
           <section class="panel" id="password" data-panel="password" aria-labelledby="password-title" hidden>
-            <h1 class="panel__title" id="password-title">Password</h1>
+            <h2 class="panel__title" id="password-title">Password</h2>
             <p class="panel__lead">Use a password you don't use on other sites.</p>
 
-            <form class="panel__form" data-form="password" novalidate>
+            <form class="panel__form panel__form--narrow" data-form="password" novalidate>
               <p class="field">
                 <label class="field__label" for="pw-current">Current password</label>
-                <input class="field__input" id="pw-current" name="current" type="password" autocomplete="current-password">
+                <span class="password">
+                  <input class="field__input" id="pw-current" name="current" type="password" autocomplete="current-password">
+                  <button class="password__toggle" type="button" aria-label="Show password" data-toggle-password>Show</button>
+                </span>
               </p>
 
               <div class="field">
                 <label class="field__label" for="pw-new">New password</label>
-                <input class="field__input" id="pw-new" name="next" type="password" autocomplete="new-password"
-                       aria-describedby="pw-rules">
+                <span class="password">
+                  <input class="field__input" id="pw-new" name="next" type="password" autocomplete="new-password"
+                         aria-describedby="pw-rules">
+                  <button class="password__toggle" type="button" aria-label="Show password" data-toggle-password>Show</button>
+                </span>
                 <span class="meter" data-meter><span></span></span>
                 <ul class="rules" id="pw-rules">
                   <li data-rule="length">8+ characters</li>
@@ -248,11 +347,11 @@
 
 
           <section class="panel" id="preferences" data-panel="preferences" aria-labelledby="preferences-title" hidden>
-            <h1 class="panel__title" id="preferences-title">Preferences</h1>
+            <h2 class="panel__title" id="preferences-title">Preferences</h2>
             <p class="panel__lead">Changes save as soon as you make them.</p>
 
             <form class="panel__form" data-form="preferences">
-              <h2 class="panel__subtitle">Email me about</h2>
+              <h3 class="panel__subtitle">Email me about</h3>
               <div class="switch-list">
 
             <label class="switch-row">
@@ -288,8 +387,8 @@
             </label>
               </div>
 
-              <h2 class="panel__subtitle">Display</h2>
-              <div class="pref-grid">
+              <h3 class="panel__subtitle">Display</h3>
+              <div class="form-pair">
                 <p class="field">
                   <label class="field__label" for="pr-currency">Show prices in</label>
                   <select class="field__input" id="pr-currency" name="currency">

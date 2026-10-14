@@ -1,12 +1,16 @@
+import { api, hasBackend } from "../api/index.js";
+import { catalog as localCatalog } from "../api/local.js";
+
 const GHANA_REGIONS = 16;
 
 let request;
 
 export function loadData() {
-  request ??= fetch("data/wandr.json")
-    .then((response) => {
-      if (!response.ok) throw new Error(`data/wandr.json answered ${response.status}`);
-      return response.json();
+  request ??= api.catalog()
+    .catch((error) => {
+      if (!hasBackend) throw error;
+      console.warn("Using the built-in list of places:", error.message);
+      return localCatalog();
     })
     .then((raw) => ({
       ...raw,

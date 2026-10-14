@@ -1,5 +1,6 @@
 import { $, $$, escapeHTML, cedis, formatDate, nightsBetween, plural, todayISO } from "../lib/dom.js";
-import { openDialog, toast } from "../lib/ui.js";
+import { openDialog, toast, promptSignIn } from "../lib/ui.js";
+import { getUser, bookings } from "../lib/store.js";
 import { regionLabel } from "../lib/data.js";
 import { hotelCard } from "../components/cards.js";
 
@@ -48,7 +49,18 @@ function openBooking(hotel) {
         checkout.addEventListener("input", () => checkout.setCustomValidity(""), { once: true });
         return false;
       }
-      toast(`Booking request sent: ${hotel.name}, ${plural(nights, "night")} from ${formatDate(checkin.value)}.`);
+      if (!getUser()) {
+        promptSignIn("Sign in to book", "Sign in and Wandr keeps your booking requests together on your trips page.");
+        return;
+      }
+      bookings.add({
+        hotelId: hotel.id,
+        checkIn: checkin.value,
+        checkOut: checkout.value,
+        guests: Number(form.elements.guests.value),
+      })
+        .then(() => toast(`Booking request saved: ${hotel.name}, ${plural(nights, "night")} from ${formatDate(checkin.value)}. See it on your trips page.`))
+        .catch((error) => toast(error.message));
     },
   });
 }

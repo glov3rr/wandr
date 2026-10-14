@@ -1,7 +1,7 @@
 import { $, $$, escapeHTML, formatDate, plural, todayISO } from "../lib/dom.js";
-import { openDialog, toast } from "../lib/ui.js";
+import { openDialog, toast, promptSignIn, whileBusy } from "../lib/ui.js";
 import { regionLabel, exploredStats, imageSrc, imageCredit } from "../lib/data.js";
-import { getUser, getVisited, toggleVisited } from "../lib/store.js";
+import { getUser, getVisited, toggleVisited, getSaved, toggleSaved, trips } from "../lib/store.js";
 import { placeCard, hotelCard } from "../components/cards.js";
 
 function notFound(root) {
@@ -169,22 +169,48 @@ export default function place(data) {
   const form = $("[data-visit-form]");
   $("#visit-date", form).min = todayISO();
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!form.reportValidity()) return;
+    if (!getUser()) {
+      promptSignIn("Sign in to plan a visit", "Sign in and Wandr saves this visit to your trips, so you can find it on any device.");
+      return;
+    }
     const adults = Number(form.elements.adults.value);
     const students = Number(form.elements.students.value);
+    const date = form.elements["visit-date"].value;
     let people = plural(adults, "adult");
     if (students) people += `, ${plural(students, "student")}`;
-    toast(`${current.name} added to your trip for ${formatDate(form.elements["visit-date"].value)} · ${people}.`);
+    try {
+      await whileBusy($('button[type="submit"]', form), "Adding…", () => trips.add({
+        name: `${current.name} visit`,
+        start: date,
+        end: date,
+        travellers: Math.max(adults + students, 1),
+        budget: null,
+        stops: [current.id],
+      }));
+      toast(`${current.name} added to your trips for ${formatDate(date)} · ${people}.`);
+    } catch (error) {
+      toast(error.message);
+    }
   });
 
   const save = $("[data-save]", form);
+
+  function syncSaved() {
+    const isSaved = Boolean(getUser()) && getSaved().includes(current.id);
+    save.setAttribute("aria-pressed", isSaved);
+    save.textContent = isSaved ? "Saved ✓" : "Save for later";
+  }
+
   save.addEventListener("click", () => {
-    const saved = save.getAttribute("aria-pressed") !== "true";
-    save.setAttribute("aria-pressed", saved);
-    save.textContent = saved ? "Saved ✓" : "Save for later";
-    toast(saved ? `${current.name} saved for later.` : `${current.name} removed from your saved places.`);
+    if (!getUser()) {
+      promptSignIn("Sign in to save places", "Sign in and Wandr keeps a list of places you want to visit.");
+      return;
+    }
+    const added = toggleSaved(current.id);
+    toast(added ? `${current.name} saved for later.` : `${current.name} removed from your saved places.`);
   });
 
   const visitedButton = $("[data-visited]", form);
@@ -196,19 +222,16 @@ export default function place(data) {
   }
 
   syncVisited();
-  window.addEventListener("wandr:change", syncVisited);
+  syncSaved();
+  window.addEventListener("wandr:change", () => {
+    syncVisited();
+    syncSaved();
+  });
 
   visitedButton.addEventListener("click", () => {
     if (!getUser()) {
-      openDialog({
-        title: "Sign in to track your travels",
-        body: `
-          <p>Sign in and Wandr keeps count of the places you've been, so you can see how much of Ghana you've explored.</p>
-          <div class="modal__actions">
-            <a class="btn" href="signin.html#create">Create account</a>
-            <a class="btn btn--solid" href="signin.html">Sign in</a>
-          </div>`,
-      });
+      promptSignIn("Sign in to track your travels",
+        "Sign in and Wandr keeps count of the places you've been, so you can see how much of Ghana you've explored.");
       return;
     }
     const added = toggleVisited(current.id);

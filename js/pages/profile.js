@@ -1,11 +1,12 @@
-import { $, $$, escapeHTML } from "../lib/dom.js";
+import { $, $$, escapeHTML, formatDate, nightsBetween, todayISO } from "../lib/dom.js";
 import {
   openDialog, toast, setupChips, markField, focusFirstError, setupPasswordToggles,
-  setupStrengthMeter, isStrongPassword, isEmail,
+  setupStrengthMeter, isStrongPassword, isEmail, whileBusy,
 } from "../lib/ui.js";
 import { placeUrl, regionLabel, exploredStats, imageSrc } from "../lib/data.js";
 import {
   getUser, updateUser, getVisited, toggleVisited, getPrefs, setPref, signOut, deleteAccount,
+  changeEmail, changePassword, trips,
 } from "../lib/store.js";
 import { avatarHTML } from "../components/header.js";
 
@@ -35,6 +36,28 @@ const LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 const ACCOUNT_KEYS = ["name", "email", "emailVisibility", "phoneVisibility", "phoneCode", "phone", "region", "bio"];
 const ACCOUNT_DEFAULTS = { emailVisibility: "private", phoneVisibility: "private", phoneCode: "+233" };
 
+function nextTripHTML(trip, data) {
+  if (!trip) {
+    return `
+      <p class="eyebrow">Upcoming trip</p>
+      <h3 class="card-title">Nothing planned yet</h3>
+      <p class="trip-card__dates">Pick a package or build your own trip in a few clicks.</p>
+      <a class="text-link" href="trips.html#plan">Plan a trip ›</a>`;
+  }
+  const days = nightsBetween(todayISO(), trip.start);
+  const dates = trip.start === trip.end ? formatDate(trip.start) : `${formatDate(trip.start)} – ${formatDate(trip.end)}`;
+  const stops = trip.stops.map((id) => data.place(id)).filter(Boolean);
+  return `
+    <p class="eyebrow">Upcoming trip</p>
+    <h3 class="card-title">${escapeHTML(trip.name)}</h3>
+    <p class="trip-card__dates">${dates}</p>
+    <p class="trip-card__countdown">${days > 0
+      ? `${days} <span>${days === 1 ? "day" : "days"} to go</span>`
+      : "<span>This trip has started. Enjoy it.</span>"}</p>
+    <ul class="tags">${stops.map((place) => `<li class="tag">${escapeHTML(place.name)}</li>`).join("")}</ul>
+    <a class="text-link" href="trips.html">See all trips ›</a>`;
+}
+
 export default function profile(data) {
   const settings = $("[data-settings]");
   const user = getUser();
@@ -43,6 +66,17 @@ export default function profile(data) {
   if (!user) return;
 
   let placeFilter = "all";
+
+  trips.list()
+    .then((list) => {
+      const upcoming = list
+        .filter((trip) => trip.start && trip.end >= todayISO())
+        .sort((a, b) => a.start.localeCompare(b.start))[0];
+      $("[data-next-trip]").innerHTML = nextTripHTML(upcoming, data);
+    })
+    .catch(() => {
+      $("[data-next-trip]").innerHTML = nextTripHTML(null, data);
+    });
 
   function render() {
     const current = getUser();
@@ -109,12 +143,6 @@ export default function profile(data) {
           </div>
         </li>`;
     }).join("");
-
-    const countdown = $("[data-countdown]");
-    const days = Math.ceil((new Date(countdown.dataset.date + "T00:00") - new Date()) / 86400000);
-    countdown.innerHTML = days > 0
-      ? `${days} <span>${days === 1 ? "day" : "days"} to go</span>`
-      : `<span>This trip has started. Enjoy it.</span>`;
 
     const steps = [
       { label: "Add a profile photo", done: Boolean(current.avatar), field: "avatar-file" },
@@ -277,7 +305,7 @@ export default function profile(data) {
     toast("Changes discarded.");
   });
 
-  account.addEventListener("submit", (event) => {
+  account.addEventListener("submit", async (event) => {
     event.preventDefault();
     const values = formValues();
     const phone = values.phone.replace(/\s/g, "");
@@ -288,9 +316,21 @@ export default function profile(data) {
     ].every(Boolean);
     if (!ok) return focusFirstError(account);
 
-    updateUser(values);
-    updateSaveBar();
-    toast("Your profile is saved.");
+    const { email, ...profileValues } = values;
+    const emailChanged = email !== getUser().email;
+    try {
+      await whileBusy($('button[type="submit"]', account), "Saving…", async () => {
+        await updateUser({ ...profileValues, phone });
+        if (emailChanged) await changeEmail(email);
+      });
+      if (emailChanged) fields.email.value = getUser().email;
+      updateSaveBar();
+      toast(emailChanged && fields.email.value !== email
+        ? `Profile saved. Open the link we sent to ${email} to confirm your new email.`
+        : "Your profile is saved.");
+    } catch (error) {
+      toast(error.message);
+    }
   });
 
   window.addEventListener("beforeunload", (event) => {
@@ -316,8 +356,9 @@ export default function profile(data) {
         const side = Math.min(image.width, image.height);
         canvas.getContext("2d").drawImage(
           image, (image.width - side) / 2, (image.height - side) / 2, side, side, 0, 0, size, size);
-        const saved = updateUser({ avatar: canvas.toDataURL("image/jpeg", 0.85) });
-        toast(saved ? "Profile photo updated." : "Your browser couldn't save that photo.");
+        updateUser({ avatar: canvas.toDataURL("image/jpeg", 0.85) })
+          .then(() => toast("Profile photo updated."))
+          .catch((error) => toast(error.message));
       });
       image.src = reader.result;
     });
@@ -325,8 +366,9 @@ export default function profile(data) {
   });
 
   $("[data-avatar-remove]").addEventListener("click", () => {
-    updateUser({ avatar: null });
-    toast("Profile photo removed.");
+    updateUser({ avatar: null })
+      .then(() => toast("Profile photo removed."))
+      .catch((error) => toast(error.message));
   });
 
   const password = $('[data-form="password"]');
@@ -339,7 +381,7 @@ export default function profile(data) {
     });
   });
 
-  password.addEventListener("submit", (event) => {
+  password.addEventListener("submit", async (event) => {
     event.preventDefault();
     const { current, next, confirm } = password.elements;
     const ok = [
@@ -354,8 +396,14 @@ export default function profile(data) {
         : ""),
     ].every(Boolean);
     if (!ok) return focusFirstError(password);
-    password.reset();
-    toast("Password updated.");
+    try {
+      await whileBusy($('button[type="submit"]', password), "Updating…", () => changePassword(current.value, next.value));
+      password.reset();
+      toast("Password updated.");
+    } catch (error) {
+      markField(current, error.message);
+      focusFirstError(password);
+    }
   });
 
   const prefs = $('[data-form="preferences"]');
@@ -367,13 +415,18 @@ export default function profile(data) {
   });
   prefs.addEventListener("change", (event) => {
     const field = event.target;
-    setPref(field.name, field.type === "checkbox" ? field.checked : field.value);
-    toast("Preference saved.");
+    setPref(field.name, field.type === "checkbox" ? field.checked : field.value)
+      .then(() => toast("Preference saved."))
+      .catch((error) => toast(error.message));
   });
 
-  $("[data-sign-out]").addEventListener("click", () => {
-    signOut();
-    location.href = "home.html";
+  $("[data-sign-out]").addEventListener("click", async (event) => {
+    try {
+      await whileBusy(event.currentTarget, "Signing out…", signOut);
+      location.href = "home.html";
+    } catch (error) {
+      toast(error.message);
+    }
   });
 
   $("[data-delete-account]").addEventListener("click", () => {
@@ -394,8 +447,9 @@ export default function profile(data) {
           input.addEventListener("input", () => input.setCustomValidity(""), { once: true });
           return false;
         }
-        deleteAccount();
-        location.href = "home.html";
+        deleteAccount()
+          .then(() => { location.href = "home.html"; })
+          .catch((error) => toast(error.message));
       },
     });
   });

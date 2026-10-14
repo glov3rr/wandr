@@ -1,6 +1,7 @@
 import { $, $$, todayISO } from "./lib/dom.js";
 import { loadData } from "./lib/data.js";
 import { setupHeader } from "./components/header.js";
+import { initSession } from "./lib/store.js";
 import home from "./pages/home.js";
 import explore from "./pages/explore.js";
 import place from "./pages/place.js";
@@ -24,6 +25,7 @@ function showLoadError(error) {
 
 const setDateLimits = () => $$('input[type="date"]').forEach((input) => { input.min ||= todayISO(); });
 
+await initSession();
 setupHeader();
 
 const name = document.body.dataset.page;

@@ -1,14 +1,47 @@
 import { $, $$, escapeHTML } from "../lib/dom.js";
 import {
   openDialog, toast, markField, focusFirstError, setupPasswordToggles,
-  setupStrengthMeter, isStrongPassword, isEmail,
+  setupStrengthMeter, isStrongPassword, isEmail, whileBusy,
 } from "../lib/ui.js";
-import { signInAs, nameFromEmail, SAMPLE_VISITED } from "../lib/store.js";
+import { getUser, signIn, signUp, resetPassword, setNewPassword, authEvent } from "../lib/store.js";
 
 const COPY = {
   signin: { title: "Welcome back", lead: "Sign in to see your saved trips and bookings." },
   create: { title: "Create your account", lead: "Save trips, book stays and join the community." },
 };
+
+const params = new URLSearchParams(location.search);
+
+function nextPage() {
+  const next = params.get("next") || "";
+  return /^[a-z]+\.html([?#][\w=&#.%-]*)?$/.test(next) ? next : null;
+}
+
+function choosePassword() {
+  openDialog({
+    title: "Choose a new password",
+    submitLabel: "Save password",
+    body: `
+      <p>Pick a new password for your Wandr account.</p>
+      <p class="field">
+        <label class="field__label" for="np-password">New password</label>
+        <input class="field__input" id="np-password" name="password" type="password"
+               autocomplete="new-password" minlength="8" required>
+      </p>`,
+    onSubmit(form) {
+      const input = form.elements.password;
+      if (!isStrongPassword(input.value)) {
+        input.setCustomValidity("Use 8 or more characters, with at least one letter and one number.");
+        input.reportValidity();
+        input.addEventListener("input", () => input.setCustomValidity(""), { once: true });
+        return false;
+      }
+      setNewPassword(input.value)
+        .then(() => toast("Your new password is saved."))
+        .catch((error) => toast(error.message));
+    },
+  });
+}
 
 export default function signin() {
   const tabs = $$('[role="tab"]');
@@ -22,7 +55,7 @@ export default function signin() {
     });
     $("[data-auth-title]").textContent = COPY[name].title;
     $("[data-auth-lead]").textContent = COPY[name].lead;
-    history.replaceState(null, "", name === "create" ? "#create" : location.pathname);
+    history.replaceState(null, "", location.pathname + location.search + (name === "create" ? "#create" : ""));
   }
 
   tabs.forEach((tab, index) => {
@@ -48,18 +81,6 @@ export default function signin() {
     return markField(input, "");
   };
 
-  function fakeRequest(form, busyText, done) {
-    const button = $('button[type="submit"]', form);
-    const label = button.textContent;
-    button.disabled = true;
-    button.textContent = busyText;
-    setTimeout(() => {
-      button.disabled = false;
-      button.textContent = label;
-      done();
-    }, 900);
-  }
-
   function finish(title, text) {
     $("[data-auth-forms]").hidden = true;
     const done = $("[data-auth-done]");
@@ -69,8 +90,36 @@ export default function signin() {
     done.focus();
   }
 
+  function signedIn(title, text) {
+    const next = nextPage();
+    if (next) {
+      location.href = next;
+      return;
+    }
+    finish(title, text);
+  }
+
+  const user = getUser();
+  if (user) {
+    if (params.has("reset") || authEvent() === "PASSWORD_RECOVERY") {
+      finish("Reset your password", "Choose a new password to finish.");
+      choosePassword();
+    } else if (params.has("confirmed")) {
+      finish(`Welcome to Wandr, ${user.name.split(" ")[0]}`, "Your email is confirmed and you're signed in.");
+    } else {
+      finish("You're signed in", `You're signed in as ${user.email}.`);
+    }
+  }
+
+  window.addEventListener("wandr:change", () => {
+    if (authEvent() === "PASSWORD_RECOVERY") {
+      finish("Reset your password", "Choose a new password to finish.");
+      choosePassword();
+    }
+  });
+
   const signInForm = $('[data-auth="signin"]');
-  signInForm.addEventListener("submit", (event) => {
+  signInForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const { email, password } = signInForm.elements;
     const ok = [
@@ -79,16 +128,20 @@ export default function signin() {
     ].every(Boolean);
     if (!ok) return focusFirstError(signInForm);
 
-    fakeRequest(signInForm, "Signing in…", () => {
-      signInAs(nameFromEmail(email.value), email.value.trim(), SAMPLE_VISITED);
-      finish("You're signed in", `Welcome back. You're signed in as ${email.value.trim()}.`);
-    });
+    try {
+      const signedInUser = await whileBusy($('button[type="submit"]', signInForm), "Signing in…",
+        () => signIn({ email: email.value.trim(), password: password.value }));
+      signedIn("You're signed in", `Welcome back, ${signedInUser.name.split(" ")[0]}. You're signed in as ${signedInUser.email}.`);
+    } catch (error) {
+      markField(password, error.message);
+      focusFirstError(signInForm);
+    }
   });
 
   const createForm = $('[data-auth="create"]');
   setupStrengthMeter(createForm.elements.password, createForm);
 
-  createForm.addEventListener("submit", (event) => {
+  createForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const { name, email, password, confirm, terms } = createForm.elements;
     const ok = [
@@ -104,11 +157,19 @@ export default function signin() {
     if (!ok) return focusFirstError(createForm);
 
     const firstName = name.value.trim().split(" ")[0];
-    fakeRequest(createForm, "Creating account…", () => {
-      signInAs(name.value.trim(), email.value.trim(), []);
-      finish(`Welcome to Wandr, ${firstName}`,
-        `Your account is ready. We've sent a confirmation link to ${email.value.trim()}.`);
-    });
+    const address = email.value.trim();
+    try {
+      const result = await whileBusy($('button[type="submit"]', createForm), "Creating account…",
+        () => signUp({ name: name.value.trim(), email: address, password: password.value }));
+      if (result.needsConfirm) {
+        finish("Check your email", `We sent a confirmation link to ${address}. Open it to finish creating your account.`);
+      } else {
+        signedIn(`Welcome to Wandr, ${firstName}`, "Your account is ready and you're signed in.");
+      }
+    } catch (error) {
+      markField(email, error.message);
+      focusFirstError(createForm);
+    }
   });
 
   $("[data-forgot]").addEventListener("click", () => {
@@ -122,7 +183,12 @@ export default function signin() {
           <input class="field__input" id="rs-email" name="email" type="email" required
                  value="${escapeHTML($("#si-email").value.trim())}">
         </p>`,
-      onSubmit(form) { toast(`Reset link sent to ${form.elements.email.value.trim()}.`); },
+      onSubmit(form) {
+        const address = form.elements.email.value.trim();
+        resetPassword(address)
+          .then(() => toast(`If ${address} has an account, a reset link is on its way.`))
+          .catch((error) => toast(error.message));
+      },
     });
   });
 

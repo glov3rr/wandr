@@ -171,3 +171,98 @@
   font-weight: 600;
   color: var(--accent-dk);
 }
+
+.trips-note {
+  margin-bottom: 14px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--ink-soft);
+  background-color: var(--surface);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+
+.trips-note a {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.trip-list__empty {
+  padding: 28px 20px;
+  text-align: center;
+  color: var(--ink-soft);
+  background-color: var(--surface);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+
+.bookings {
+  margin-top: 36px;
+}
+
+.booking-list {
+  display: grid;
+  gap: 12px;
+}
+
+.booking-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.booking-item__name {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.booking-item__meta {
+  margin-top: 2px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+
+.booking-item__side {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.booking-item__total {
+  font-weight: 800;
+}
+
+.trip__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.btn--danger {
+  color: #B3261E;
+  border-color: #E8B4AF;
+}
+
+.btn--danger:hover {
+  color: #fff;
+  background-color: #B3261E;
+  border-color: #B3261E;
+}
+
+@media (max-width: 560px) {
+  .booking-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .booking-item__side {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

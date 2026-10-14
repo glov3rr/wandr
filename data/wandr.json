@@ -2064,5 +2064,158 @@
     "ac": "Air conditioning",
     "parking": "Parking",
     "game-drives": "Game drives"
-  }
+  },
+  "rooms": [
+    {
+      "id": "kakum",
+      "name": "Kakum & Cape Coast",
+      "initials": "KC",
+      "groups": [
+        "regions"
+      ],
+      "members": 218,
+      "messages": [
+        {
+          "who": "Kwabena",
+          "time": "08:41",
+          "text": "Has anyone visited Elmina Castle recently? Wondering how busy it gets."
+        },
+        {
+          "who": "Ama",
+          "time": "08:47",
+          "text": "Went two weeks ago. Tours start on the hour and the 9am one was almost empty."
+        },
+        {
+          "who": "Ama",
+          "time": "08:48",
+          "text": "Go on a weekday if you can. Saturdays are rough."
+        },
+        {
+          "who": "Kofi",
+          "time": "09:02",
+          "text": "Good to know. Is it walkable from Cape Coast Castle or should I get a taxi?"
+        },
+        {
+          "who": "Yaw",
+          "time": "09:09",
+          "text": "Taxi. It is about 15km along the coast road, roughly GHS 40."
+        },
+        {
+          "who": "Kofi",
+          "time": "09:11",
+          "text": "Perfect, thanks both."
+        },
+        {
+          "who": "Ama",
+          "time": "09:14",
+          "text": "Do Kakum the same trip. It is 40 minutes inland and the canopy walk opens at 8."
+        }
+      ]
+    },
+    {
+      "id": "volta",
+      "name": "Volta Region",
+      "initials": "VR",
+      "groups": [
+        "regions"
+      ],
+      "members": 164,
+      "messages": [
+        {
+          "who": "Selasi",
+          "time": "07:30",
+          "text": "Wli was full of water last weekend. The lower falls trail was muddy but fine."
+        },
+        {
+          "who": "Kojo",
+          "time": "08:02",
+          "text": "Afadjato in the rainy season?"
+        }
+      ]
+    },
+    {
+      "id": "accra",
+      "name": "Accra Weekenders",
+      "initials": "AW",
+      "groups": [
+        "buddies"
+      ],
+      "members": 402,
+      "messages": [
+        {
+          "who": "Esi",
+          "time": "20:15",
+          "text": "Anyone know a quiet spot near Labadi for Sunday?"
+        },
+        {
+          "who": "Naa",
+          "time": "21:40",
+          "text": "Labadi was packed on Sunday"
+        }
+      ]
+    },
+    {
+      "id": "mole",
+      "name": "Mole Safari",
+      "initials": "MS",
+      "groups": [
+        "regions"
+      ],
+      "members": 97,
+      "messages": [
+        {
+          "who": "Fuseini",
+          "time": "16:50",
+          "text": "The 6:30 walking safari is the one to book."
+        },
+        {
+          "who": "Yaw",
+          "time": "17:22",
+          "text": "Saw elephants at the waterhole"
+        }
+      ]
+    },
+    {
+      "id": "solo",
+      "name": "Solo travellers Ghana",
+      "initials": "SG",
+      "groups": [
+        "buddies"
+      ],
+      "members": 251,
+      "messages": [
+        {
+          "who": "Kweku",
+          "time": "13:40",
+          "text": "The STC bus to Tamale was comfortable, about 12 hours."
+        },
+        {
+          "who": "Efua",
+          "time": "14:05",
+          "text": "Anyone heading north in October?"
+        }
+      ]
+    },
+    {
+      "id": "north",
+      "name": "Northern Ghana",
+      "initials": "NG",
+      "groups": [
+        "regions"
+      ],
+      "members": 108,
+      "messages": [
+        {
+          "who": "Abena",
+          "time": "10:58",
+          "text": "Is the road from Tamale to Damongo paved now?"
+        },
+        {
+          "who": "Musah",
+          "time": "11:30",
+          "text": "Tamale to Mole is about 2 hours"
+        }
+      ]
+    }
+  ]
 }

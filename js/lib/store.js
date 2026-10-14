@@ -1,28 +1,5 @@
-const PREFIX = "wandr:";
-
-export const store = {
-  get(key, fallback) {
-    try {
-      const value = localStorage.getItem(PREFIX + key);
-      return value === null ? fallback : JSON.parse(value);
-    } catch {
-      return fallback;
-    }
-  },
-  set(key, value) {
-    try {
-      localStorage.setItem(PREFIX + key, JSON.stringify(value));
-      return true;
-    } catch {
-      return false;
-    }
-  },
-  remove(key) {
-    try { localStorage.removeItem(PREFIX + key); } catch {}
-  },
-};
-
-export const SAMPLE_VISITED = ["kakum", "cape-coast", "labadi"];
+import { api, hasBackend } from "../api/index.js";
+import { toast } from "./ui.js";
 
 export const DEFAULT_PREFS = {
   tripReminders: true,
@@ -33,69 +10,129 @@ export const DEFAULT_PREFS = {
   distance: "km",
 };
 
+let user = null;
+let visitedIds = [];
+let savedIds = [];
+let lastAuthEvent = null;
+
 function announce() {
   window.dispatchEvent(new CustomEvent("wandr:change"));
 }
 
-window.addEventListener("storage", (event) => {
-  if (event.key?.startsWith(PREFIX)) announce();
-});
-
-export function getUser() {
-  return store.get("user", null);
+async function loadLists() {
+  if (!user) {
+    visitedIds = [];
+    savedIds = [];
+    return;
+  }
+  [visitedIds, savedIds] = await Promise.all([api.visited.list(), api.saved.list()]);
 }
 
-export function updateUser(changes) {
-  const saved = store.set("user", { ...getUser(), ...changes });
+export async function initSession() {
+  try {
+    user = await api.currentUser();
+    await loadLists();
+  } catch (error) {
+    console.error(error);
+    user = null;
+  }
+  api.onAuthChange(async (next, event) => {
+    user = next;
+    lastAuthEvent = event;
+    await loadLists().catch(console.error);
+    announce();
+  });
+}
+
+export const getUser = () => user;
+
+export const authEvent = () => lastAuthEvent;
+
+export async function signUp(details) {
+  const result = await api.signUp(details);
+  if (result.user) {
+    user = result.user;
+    await loadLists();
+    announce();
+  }
+  return result;
+}
+
+export async function signIn(details) {
+  user = await api.signIn(details);
+  await loadLists();
   announce();
-  return saved;
+  return user;
 }
 
-export function signInAs(name, email, visited) {
-  const existing = getUser();
-  store.set("user", existing && existing.email === email
-    ? existing
-    : { name, email, joined: new Date().toISOString() });
-  if (!store.get("visited", null)) store.set("visited", visited);
+function forget() {
+  user = null;
+  visitedIds = [];
+  savedIds = [];
   announce();
 }
 
-export function signOut() {
-  store.remove("user");
-  store.remove("visited");
+export async function signOut() {
+  await api.signOut();
+  forget();
+}
+
+export async function deleteAccount() {
+  await api.deleteAccount();
+  forget();
+}
+
+export async function updateUser(changes) {
+  await api.saveProfile(changes);
+  user = { ...user, ...changes };
   announce();
 }
 
-export function deleteAccount() {
-  ["user", "visited", "prefs"].forEach((key) => store.remove(key));
-  announce();
+export async function changeEmail(email) {
+  await api.changeEmail(email);
+  if (!hasBackend) {
+    user = { ...user, email };
+    announce();
+  }
 }
 
-export function getVisited() {
-  return store.get("visited", []);
+export const resetPassword = (email) => api.resetPassword(email);
+export const setNewPassword = (password) => api.setNewPassword(password);
+export const changePassword = (current, next) => api.changePassword(current, next);
+
+function toggler(getList, setList, remote) {
+  return (id) => {
+    const before = getList();
+    const had = before.includes(id);
+    setList(had ? before.filter((item) => item !== id) : [...before, id]);
+    announce();
+    (had ? remote.remove(id) : remote.add(id)).catch((error) => {
+      setList(before);
+      announce();
+      toast(error.message);
+    });
+    return !had;
+  };
 }
 
-export function toggleVisited(id) {
-  const visited = getVisited();
-  const been = visited.includes(id);
-  store.set("visited", been ? visited.filter((v) => v !== id) : [...visited, id]);
-  announce();
-  return !been;
+export const getVisited = () => visitedIds;
+export const toggleVisited = toggler(() => visitedIds, (list) => { visitedIds = list; }, api.visited);
+
+export const getSaved = () => savedIds;
+export const toggleSaved = toggler(() => savedIds, (list) => { savedIds = list; }, api.saved);
+
+export const getPrefs = () => ({ ...DEFAULT_PREFS, ...(user?.prefs || {}) });
+
+export async function setPref(key, value) {
+  const prefs = { ...getPrefs(), [key]: value };
+  await api.saveProfile({ prefs });
+  user = { ...user, prefs };
 }
 
-export function getPrefs() {
-  return { ...DEFAULT_PREFS, ...store.get("prefs", {}) };
-}
-
-export function setPref(key, value) {
-  store.set("prefs", { ...getPrefs(), [key]: value });
-}
+export const trips = api.trips;
+export const bookings = api.bookings;
+export const community = api.community;
 
 export function initials(name) {
   return name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0].toUpperCase()).join("");
-}
-
-export function nameFromEmail(email) {
-  const handle = email.trim().split("@")[0].split(/[._-]/)[0];
-  return handle.charAt(0).toUpperCase() + handle.slice(1);
 }

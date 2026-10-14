@@ -3,7 +3,7 @@ import { openDialog, toast } from "../lib/ui.js";
 import { getUser, initials } from "../lib/store.js";
 
 export function avatarHTML(user) {
-  return user.avatar ? `<img src="${user.avatar}" alt="">` : escapeHTML(initials(user.name));
+  return user.avatar ? `<img src="${escapeHTML(user.avatar)}" alt="">` : escapeHTML(initials(user.name));
 }
 
 function setupMenu() {

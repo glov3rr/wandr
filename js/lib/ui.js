@@ -139,3 +139,28 @@ export function setupStrengthMeter(input, root) {
 export const isStrongPassword = (value) => Object.values(PASSWORD_RULES).every((rule) => rule(value));
 
 export const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+
+export function promptSignIn(title, text) {
+  const back = encodeURIComponent(location.pathname.split("/").pop() + location.search + location.hash);
+  openDialog({
+    title,
+    body: `
+      <p>${text}</p>
+      <div class="modal__actions">
+        <a class="btn" href="signin.html?next=${back}#create">Create account</a>
+        <a class="btn btn--solid" href="signin.html?next=${back}">Sign in</a>
+      </div>`,
+  });
+}
+
+export async function whileBusy(button, label, work) {
+  const original = button.textContent;
+  button.disabled = true;
+  button.textContent = label;
+  try {
+    return await work();
+  } finally {
+    button.disabled = false;
+    button.textContent = original;
+  }
+}

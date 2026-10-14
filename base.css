@@ -1,23 +1,4 @@
-/* ==========================================================================
-   WANDR — base.css
-   Loaded by every page, before that page's own stylesheet.
-   Order: tokens → reset → header → buttons → layout → components → responsive.
 
-   This file used to be copy-pasted at the top of six separate stylesheets
-   (one per page) — six copies of the same ~450 lines. It now lives once,
-   here. Each page links to base.css first, then its own stylesheet for
-   whatever is unique to that page:
-     <link rel="stylesheet" href="base.css">
-     <link rel="stylesheet" href="exploredesign.css">
-   home.html has nothing left that's unique to it, so it links base.css
-   alone.
-   ========================================================================== */
-
-/* --------------------------------------------------------------------------
-   1. DESIGN TOKENS
-   Define a colour once, use it everywhere. Change --accent and the whole
-   site recolours.
-   -------------------------------------------------------------------------- */
 :root {
   --cream:     #F5F0E7;
   --surface:   #FFFFFF;
@@ -35,14 +16,11 @@
 }
 
 
-/* --------------------------------------------------------------------------
-   2. RESET
-   Browsers ship default margins that disagree with each other. Wipe them.
-   -------------------------------------------------------------------------- */
+
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;   /* width includes padding + border */
+  box-sizing: border-box;   
 }
 
 body {
@@ -54,12 +32,11 @@ body {
 }
 
 img {
-  display: block;    /* removes the mystery gap under images */
+  display: block;   
   max-width: 100%;
 }
 
-/* Covers <ol> too — the breadcrumbs are an ordered list and would
-   otherwise render with 1. 2. 3. numbers. */
+
 ul, ol { list-style: none; }
 
 a {
@@ -84,11 +61,6 @@ input:focus-visible {
 }
 
 
-/* --------------------------------------------------------------------------
-   3. HEADER
-   The background spans the window; .site-header__inner centres the content.
-   That split is the most reused layout pattern on the web.
-   -------------------------------------------------------------------------- */
 .site-header {
   background-color: var(--surface);
   border-bottom: 1px solid var(--line);
@@ -108,7 +80,7 @@ input:focus-visible {
 }
 
 .logo {
-  display: flex;           /* puts the mark and the word side by side */
+  display: flex;         
   align-items: center;
   gap: 8px;
   font-size: 19px;
@@ -140,9 +112,7 @@ input:focus-visible {
 }
 
 
-/* --------------------------------------------------------------------------
-   4. BUTTONS
-   -------------------------------------------------------------------------- */
+
 .btn {
   display: inline-block;
   padding: 10px 20px;

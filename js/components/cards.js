@@ -6,7 +6,7 @@ export function placeCard(place, { row = false } = {}) {
     <li data-category="${slug(place.category)}" data-search="${escapeHTML(
       `${place.name} ${place.region} ${place.category}`.toLowerCase())}">
       <a class="card${row ? " card--row" : ""}" href="${placeUrl(place)}">
-        <img class="card__img" src="${imageSrc(place.image, 640)}" alt="${escapeHTML(place.imageAlt)}" loading="lazy">
+        <img class="card__img" src="${imageSrc(place.image)}" alt="${escapeHTML(place.imageAlt)}" loading="lazy">
         <div class="card__body">
           <p class="card__tag">${place.category}</p>
           <h3 class="card__title">${escapeHTML(place.name)}</h3>
@@ -19,7 +19,7 @@ export function placeCard(place, { row = false } = {}) {
 
 function hotelImage(hotel) {
   if (hotel.image) {
-    return `<img class="stay__img" src="${imageSrc(hotel.image, 640)}" alt="${escapeHTML(hotel.name)}" loading="lazy">`;
+    return `<img class="stay__img" src="${imageSrc(hotel.image)}" alt="${escapeHTML(hotel.name)}" loading="lazy">`;
   }
   const letters = hotel.name.split(" ").filter((word) => /^[A-Z]/.test(word)).slice(0, 2).map((word) => word[0]).join("");
   return `

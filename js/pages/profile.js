@@ -82,7 +82,7 @@ export default function profile(data) {
     nextCard.classList.toggle("next-card--done", !next);
     nextCard.innerHTML = next
       ? `
-        <img src="${imageSrc(next.image, 640)}" alt="">
+        <img src="${imageSrc(next.image)}" alt="">
         <p class="eyebrow">Next up</p>
         <h3 class="next-card__name"><a href="${placeUrl(next)}">${escapeHTML(next.name)}</a></h3>
         <p class="next-card__region">${regionLabel(next.region)}</p>
@@ -163,7 +163,7 @@ export default function profile(data) {
       return `
         <li>
           <article class="place-card${been ? " is-visited" : ""}">
-            <img class="place-card__img" src="${imageSrc(place.image, 640)}" alt="" loading="lazy">
+            <img class="place-card__img" src="${imageSrc(place.image)}" alt="" loading="lazy">
             ${been ? '<span class="place-card__stamp">Visited</span>' : ""}
             <div class="place-card__body">
               <h3 class="place-card__name"><a href="${placeUrl(place)}">${escapeHTML(place.name)}</a></h3>

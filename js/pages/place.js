@@ -66,7 +66,7 @@ function render(place, data) {
           <ul class="gallery">
             ${place.gallery.map((image) => `
               <li><button class="gallery__btn" type="button">
-                <img src="${imageSrc(image, 640)}" alt="${escapeHTML(place.name)} and the surrounding area" loading="lazy">
+                <img src="${imageSrc(image)}" alt="${escapeHTML(place.name)} and the surrounding area" loading="lazy">
               </button></li>`).join("")}
           </ul>` : ""}
 

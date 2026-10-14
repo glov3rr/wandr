@@ -26,11 +26,10 @@ export const slug = (text) => text.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
 const COMMONS = "commons:";
 
-export function imageSrc(image, width = 1280) {
+export function imageSrc(image) {
   if (!image) return "";
   if (image.startsWith(COMMONS)) {
-    const file = encodeURIComponent(image.slice(COMMONS.length));
-    return `https://commons.wikimedia.org/wiki/Special:FilePath/${file}?width=${width}`;
+    return `Images/commons/${image.slice(COMMONS.length).replace(/[^\w.-]/g, "_")}`;
   }
   return `Images/${image}`;
 }

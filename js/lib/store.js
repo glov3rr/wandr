@@ -20,6 +20,23 @@ function announce() {
   window.dispatchEvent(new CustomEvent("wandr:change"));
 }
 
+const CACHE_KEY = "wandr:me";
+
+function readCache() {
+  try {
+    return JSON.parse(localStorage.getItem(CACHE_KEY));
+  } catch {
+    return null;
+  }
+}
+
+function writeCache() {
+  try {
+    if (user) localStorage.setItem(CACHE_KEY, JSON.stringify({ user, visitedIds, savedIds }));
+    else localStorage.removeItem(CACHE_KEY);
+  } catch {}
+}
+
 async function loadLists() {
   if (!user) {
     visitedIds = [];
@@ -29,10 +46,27 @@ async function loadLists() {
   [visitedIds, savedIds] = await Promise.all([api.visited.list(), api.saved.list()]);
 }
 
+async function refresh() {
+  const [next, visited, saved] = await Promise.all([api.currentUser(), api.visited.list(), api.saved.list()]);
+  user = next;
+  visitedIds = next ? visited : [];
+  savedIds = next ? saved : [];
+  writeCache();
+}
+
 export async function initSession() {
   try {
-    user = await withTimeout(api.currentUser(), 6000, "Signing in took too long.");
-    await withTimeout(loadLists(), 6000, "Loading your places took too long.");
+    const id = await withTimeout(api.sessionUserId(), 6000, "Checking your sign-in took too long.");
+    const cache = readCache();
+    if (!id) {
+      user = null;
+      writeCache();
+    } else if (cache?.user?.id === id) {
+      ({ user, visitedIds, savedIds } = cache);
+      refresh().then(announce).catch(console.error);
+    } else {
+      await withTimeout(refresh(), 6000, "Loading your account took too long.");
+    }
   } catch (error) {
     console.error(error);
     user = null;
@@ -41,6 +75,7 @@ export async function initSession() {
     user = next;
     lastAuthEvent = event;
     await loadLists().catch(console.error);
+    writeCache();
     announce();
   });
 }
@@ -54,6 +89,7 @@ export async function signUp(details) {
   if (result.user) {
     user = result.user;
     await loadLists();
+    writeCache();
     announce();
   }
   return result;
@@ -62,6 +98,7 @@ export async function signUp(details) {
 export async function signIn(details) {
   user = await api.signIn(details);
   await loadLists();
+  writeCache();
   announce();
   return user;
 }
@@ -70,6 +107,7 @@ function forget() {
   user = null;
   visitedIds = [];
   savedIds = [];
+  writeCache();
   announce();
 }
 
@@ -86,6 +124,7 @@ export async function deleteAccount() {
 export async function updateUser(changes) {
   await api.saveProfile(changes);
   user = { ...user, ...changes };
+  writeCache();
   announce();
 }
 
@@ -93,6 +132,7 @@ export async function changeEmail(email) {
   await api.changeEmail(email);
   if (!hasBackend) {
     user = { ...user, email };
+    writeCache();
     announce();
   }
 }
@@ -106,9 +146,11 @@ function toggler(getList, setList, remote) {
     const before = getList();
     const had = before.includes(id);
     setList(had ? before.filter((item) => item !== id) : [...before, id]);
+    writeCache();
     announce();
     (had ? remote.remove(id) : remote.add(id)).catch((error) => {
       setList(before);
+      writeCache();
       announce();
       toast(error.message);
     });
@@ -128,6 +170,7 @@ export async function setPref(key, value) {
   const prefs = { ...getPrefs(), [key]: value };
   await api.saveProfile({ prefs });
   user = { ...user, prefs };
+  writeCache();
 }
 
 export const trips = api.trips;

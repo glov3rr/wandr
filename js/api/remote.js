@@ -65,6 +65,18 @@ async function loadUser(authUser) {
   return me;
 }
 
+export async function sessionUserId() {
+  const db = await getClient();
+  const { data } = await db.auth.getSession();
+  const authUser = data.session?.user;
+  if (!authUser) {
+    me = null;
+    return null;
+  }
+  if (me?.id !== authUser.id) me = toUser(authUser, null);
+  return authUser.id;
+}
+
 export async function currentUser() {
   const db = await getClient();
   const { data } = await db.auth.getSession();

@@ -35,6 +35,10 @@ function signedInUser() {
   return { id: "local", prefs: read("prefs", {}), ...user };
 }
 
+export async function sessionUserId() {
+  return read("user", null) ? "local" : null;
+}
+
 export async function currentUser() {
   return signedInUser();
 }

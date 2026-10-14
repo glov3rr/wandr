@@ -25,10 +25,11 @@ function showLoadError(error) {
 
 const setDateLimits = () => $$('input[type="date"]').forEach((input) => { input.min ||= todayISO(); });
 
+const name = document.body.dataset.page;
+const dataReady = DATA_PAGES[name] ? loadData() : null;
+
 await initSession();
 setupHeader();
-
-const name = document.body.dataset.page;
 
 if (PLAIN_PAGES[name]) {
   PLAIN_PAGES[name]();
@@ -36,7 +37,7 @@ if (PLAIN_PAGES[name]) {
 }
 
 if (DATA_PAGES[name]) {
-  loadData()
+  dataReady
     .then((data) => {
       DATA_PAGES[name](data);
       setDateLimits();

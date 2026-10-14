@@ -6,20 +6,44 @@ const GHANA_REGIONS = 16;
 
 let request;
 
+const CACHE_KEY = "wandr:catalog";
+
+function savedCatalog() {
+  try {
+    return JSON.parse(localStorage.getItem(CACHE_KEY));
+  } catch {
+    return null;
+  }
+}
+
+function remember(raw) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(raw));
+  } catch {}
+  return raw;
+}
+
+function withHelpers(raw) {
+  return {
+    ...raw,
+    place: (id) => raw.places.find((place) => place.id === id),
+    hotel: (id) => raw.hotels.find((hotel) => hotel.id === id),
+    categories: [...new Set(raw.places.map((place) => place.category))],
+    regions: [...new Set(raw.places.map((place) => place.region))],
+  };
+}
+
 export function loadData() {
-  request ??= withTimeout(api.catalog(), 8000, "The database took too long to answer.")
+  if (request) return request;
+  const fresh = withTimeout(api.catalog(), 8000, "The database took too long to answer.")
+    .then((raw) => (hasBackend ? remember(raw) : raw))
     .catch((error) => {
       if (!hasBackend) throw error;
       console.warn("Using the built-in list of places:", error.message);
       return localCatalog();
-    })
-    .then((raw) => ({
-      ...raw,
-      place: (id) => raw.places.find((place) => place.id === id),
-      hotel: (id) => raw.hotels.find((hotel) => hotel.id === id),
-      categories: [...new Set(raw.places.map((place) => place.category))],
-      regions: [...new Set(raw.places.map((place) => place.region))],
-    }));
+    });
+  const saved = hasBackend ? savedCatalog() : null;
+  request = (saved?.places?.length ? Promise.resolve(saved) : fresh).then(withHelpers);
   return request;
 }
 

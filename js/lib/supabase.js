@@ -1,7 +1,5 @@
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 
-const LIBRARY = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/+esm";
-
 const projectUrl = /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(SUPABASE_URL.trim());
 
 if (SUPABASE_URL && !projectUrl) {
@@ -13,7 +11,7 @@ export const hasBackend = Boolean(projectUrl && SUPABASE_ANON_KEY.trim());
 let client;
 
 export function getClient() {
-  client ??= import(LIBRARY).then(({ createClient }) =>
+  client ??= import("../vendor/supabase.js").then(({ createClient }) =>
     createClient(SUPABASE_URL.trim().replace(/\/$/, ""), SUPABASE_ANON_KEY.trim()));
   return client;
 }

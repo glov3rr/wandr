@@ -28,3 +28,11 @@ export function todayISO() {
 export function nightsBetween(start, end) {
   return Math.round((new Date(end + "T00:00") - new Date(start + "T00:00")) / 86400000);
 }
+
+export function withTimeout(promise, ms, message) {
+  let timer;
+  const timeout = new Promise((resolve, reject) => {
+    timer = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}

@@ -1,5 +1,6 @@
 import { api, hasBackend } from "../api/index.js";
 import { toast } from "./ui.js";
+import { withTimeout } from "./dom.js";
 
 export const DEFAULT_PREFS = {
   tripReminders: true,
@@ -30,8 +31,8 @@ async function loadLists() {
 
 export async function initSession() {
   try {
-    user = await api.currentUser();
-    await loadLists();
+    user = await withTimeout(api.currentUser(), 6000, "Signing in took too long.");
+    await withTimeout(loadLists(), 6000, "Loading your places took too long.");
   } catch (error) {
     console.error(error);
     user = null;

@@ -1,12 +1,13 @@
 import { api, hasBackend } from "../api/index.js";
 import { catalog as localCatalog } from "../api/local.js";
+import { withTimeout } from "./dom.js";
 
 const GHANA_REGIONS = 16;
 
 let request;
 
 export function loadData() {
-  request ??= api.catalog()
+  request ??= withTimeout(api.catalog(), 8000, "The database took too long to answer.")
     .catch((error) => {
       if (!hasBackend) throw error;
       console.warn("Using the built-in list of places:", error.message);

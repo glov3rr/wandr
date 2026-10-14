@@ -4,7 +4,7 @@ import { slug } from "../lib/data.js";
 import { getUser } from "../lib/store.js";
 import { placeCard } from "../components/cards.js";
 
-const ACCRA = { x: 64.0, y: 84.3 };
+const ACCRA = { x: 64.5, y: 84.6 };
 
 function greet() {
   const hour = new Date().getHours();

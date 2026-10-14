@@ -2,6 +2,7 @@ import { $, $$, todayISO } from "./lib/dom.js";
 import { loadData } from "./lib/data.js";
 import { setupHeader } from "./components/header.js";
 import { initSession } from "./lib/store.js";
+import { maybeShowOnboarding } from "./components/onboarding.js";
 import home from "./pages/home.js";
 import explore from "./pages/explore.js";
 import place from "./pages/place.js";
@@ -30,6 +31,7 @@ const dataReady = DATA_PAGES[name] ? loadData() : null;
 
 await initSession();
 setupHeader();
+maybeShowOnboarding();
 
 if (PLAIN_PAGES[name]) {
   PLAIN_PAGES[name]();

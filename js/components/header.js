@@ -1,6 +1,8 @@
 import { $, $$, escapeHTML } from "../lib/dom.js";
 import { openDialog, toast } from "../lib/ui.js";
 import { getUser, initials } from "../lib/store.js";
+import { hasBackend } from "../lib/supabase.js";
+import { showOnboarding } from "./onboarding.js";
 
 export function avatarHTML(user) {
   return user.avatar ? `<img src="${escapeHTML(user.avatar)}" alt="">` : escapeHTML(initials(user.name));
@@ -43,12 +45,22 @@ export const DIALOGS = {
 
   privacy: () => openDialog({
     title: "Privacy",
-    body: `
-      <p>Wandr doesn't have a server yet. Your sign-in, profile and the places
-         you've visited are kept in this browser only, and nothing you type is
-         sent anywhere.</p>
-      <p>The only outside request the site makes is for its font, from Google Fonts.</p>`,
+    body: hasBackend
+      ? `
+        <p>When you create an account, Wandr stores your email, your profile, the places
+           you've marked or saved, your trips, your booking requests and the messages you
+           post in community rooms.</p>
+        <p>It's kept in a Supabase database. Only you can see your own profile, trips and
+           bookings. Messages in rooms can be read by anyone who visits Community.</p>
+        <p>You can delete your account at any time from your profile. That removes
+           everything except messages you posted, which stay without your name linked.</p>`
+      : `
+        <p>Wandr doesn't have a server yet. Your sign-in, profile and the places
+           you've visited are kept in this browser only, and nothing you type is
+           sent anywhere.</p>`,
   }),
+
+  tour: () => showOnboarding(),
 };
 
 function setupDialogButtons() {

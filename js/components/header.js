@@ -75,8 +75,15 @@ function renderAccount() {
   const user = getUser();
 
   $(".profile", header)?.remove();
+  $("[data-admin-link]", header)?.remove();
   $('a[href="signin.html"]', header).hidden = Boolean(user);
   if (!user) return;
+
+  if (user.isAdmin) {
+    const current = document.body.dataset.page === "admin";
+    $(".main-nav ul", header)?.insertAdjacentHTML("beforeend", `
+      <li data-admin-link><a${current ? ' class="is-current" aria-current="page"' : ""} href="admin.html">Admin</a></li>`);
+  }
 
   const link = document.createElement("a");
   link.className = "profile";

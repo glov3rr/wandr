@@ -57,6 +57,7 @@ const COMMONS = "commons:";
 
 export function imageSrc(image) {
   if (!image) return "";
+  if (/^https?:\/\//.test(image)) return image;
   if (image.startsWith(COMMONS)) {
     return `Images/commons/${image.slice(COMMONS.length).replace(/[^\w.-]/g, "_")}`;
   }

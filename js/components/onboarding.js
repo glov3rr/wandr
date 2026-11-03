@@ -129,7 +129,7 @@ export function showOnboarding() {
 export function maybeShowOnboarding() {
   const page = document.body.dataset.page;
   const params = new URLSearchParams(location.search);
-  if (hasSeen() || getUser() || page === "signin" || params.has("reset") || params.has("confirmed")) return;
+  if (hasSeen() || getUser() || page === "signin" || page === "admin" || params.has("reset") || params.has("confirmed")) return;
   setTimeout(() => {
     if (!document.querySelector("dialog[open]")) showOnboarding();
   }, 700);

@@ -58,3 +58,32 @@ Each one should appear as a new row in **Table Editor**.
 - Free projects pause after about a week without visits. While paused, the site falls back to its built-in list of places and sign-in won't work. Open the project in the dashboard and click **Restore**.
 - To change places or hotels, edit the rows in **Table Editor**. The site reads them live.
 - If the places table can't be reached, the site uses `data/wandr.json` instead, so keep that file in step with the database.
+
+## Admin area (adding places and stays without code)
+
+1. In Supabase, open **SQL Editor → New query**, paste everything from `supabase/002_admin.sql` and click **Run**.
+   Run it after `schema.sql` and `seed.sql`. It is safe to run again.
+2. Make your account an admin. Sign up on the site first, then run this with your own email:
+
+```sql
+insert into public.admins (user_id)
+select id from auth.users where email = 'you@example.com';
+```
+
+3. Sign out and back in on the site. An **Admin** link appears in the menu, or go to `/admin.html`.
+
+What `002_admin.sql` adds:
+
+- an `admins` table and an `is_admin()` check used by the security rules
+- only admins can add, change or delete places and stays
+- a public `media` storage bucket for photos, which only admins can upload to
+- `hidden` and `updated_at` columns, so you can take something off the site without deleting it
+- stricter checks on what can be saved: real regions and categories, nearby places that exist,
+  trips whose stops are real places, no bookings in the past, at most 30 nights, and a limit of
+  5 chat messages every 10 seconds
+
+To add another admin later, run step 2 again with their email. To remove one:
+
+```sql
+delete from public.admins where user_id = (select id from auth.users where email = 'them@example.com');
+```

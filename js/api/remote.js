@@ -1,4 +1,6 @@
 import { getClient } from "../lib/supabase.js";
+import * as serialize from "./serializers.js";
+import { validateTrip, validateBooking, validateProfile, validateMessage } from "./validators.js";
 
 let me = null;
 
@@ -25,43 +27,17 @@ async function run(request) {
 
 const pageUrl = (page) => new URL(page, location.href).href;
 
-function toUser(authUser, profile) {
-  return {
-    id: authUser.id,
-    email: authUser.email,
-    joined: authUser.created_at,
-    name: profile?.name || authUser.email.split("@")[0],
-    bio: profile?.bio || "",
-    region: profile?.region || "",
-    phone: profile?.phone || "",
-    phoneCode: profile?.phone_code || "+233",
-    emailVisibility: profile?.email_visibility || "private",
-    phoneVisibility: profile?.phone_visibility || "private",
-    avatar: profile?.avatar || null,
-    prefs: profile?.prefs || {},
-  };
-}
-
-const PROFILE_COLUMNS = {
-  name: "name",
-  bio: "bio",
-  region: "region",
-  phone: "phone",
-  phoneCode: "phone_code",
-  emailVisibility: "email_visibility",
-  phoneVisibility: "phone_visibility",
-  avatar: "avatar",
-  prefs: "prefs",
-};
-
 async function loadUser(authUser) {
   if (!authUser) {
     me = null;
     return null;
   }
   const db = await getClient();
-  const profile = await run(db.from("profiles").select("*").eq("id", authUser.id).maybeSingle());
-  me = toUser(authUser, profile);
+  const [row, isAdmin] = await Promise.all([
+    run(db.from("profiles").select("*").eq("id", authUser.id).maybeSingle()),
+    db.rpc("is_admin").then(({ data }) => data === true, () => false),
+  ]);
+  me = serialize.profile.fromRow(authUser, row, isAdmin);
   return me;
 }
 
@@ -73,7 +49,7 @@ export async function sessionUserId() {
     me = null;
     return null;
   }
-  if (me?.id !== authUser.id) me = toUser(authUser, null);
+  if (me?.id !== authUser.id) me = serialize.profile.fromRow(authUser, null);
   return authUser.id;
 }
 
@@ -141,12 +117,7 @@ export async function changeEmail(email) {
 
 export async function saveProfile(changes) {
   const db = await getClient();
-  const row = {};
-  Object.entries(changes).forEach(([key, value]) => {
-    if (PROFILE_COLUMNS[key]) row[PROFILE_COLUMNS[key]] = value === "" ? null : value;
-  });
-  if (row.name === null) delete row.name;
-  if (row.phone_code === null) delete row.phone_code;
+  const row = serialize.profile.toRow(validateProfile(changes));
   await run(db.from("profiles").update(row).eq("id", me.id));
 }
 
@@ -178,36 +149,16 @@ function placeList(table) {
 export const visited = placeList("visited");
 export const saved = placeList("saved_places");
 
-const toTrip = (row) => ({
-  id: row.id,
-  name: row.name,
-  start: row.start_date,
-  end: row.end_date,
-  travellers: row.travellers,
-  budget: row.budget,
-  stops: row.stops,
-  status: row.status,
-  created: row.created_at,
-});
-
 export const trips = {
   async list() {
     const db = await getClient();
     const rows = await run(db.from("trips").select("*").order("created_at", { ascending: false }));
-    return rows.map(toTrip);
+    return rows.map(serialize.trip.fromRow);
   },
   async add(trip) {
     const db = await getClient();
-    const row = await run(db.from("trips").insert({
-      name: trip.name,
-      start_date: trip.start || null,
-      end_date: trip.end || null,
-      travellers: trip.travellers,
-      budget: trip.budget || null,
-      stops: trip.stops,
-      status: trip.start ? "planned" : "draft",
-    }).select().single());
-    return toTrip(row);
+    const row = await run(db.from("trips").insert(serialize.trip.toRow(validateTrip(trip))).select().single());
+    return serialize.trip.fromRow(row);
   },
   async remove(id) {
     const db = await getClient();
@@ -215,31 +166,16 @@ export const trips = {
   },
 };
 
-const toBooking = (row) => ({
-  id: row.id,
-  hotelId: row.hotel_id,
-  checkIn: row.check_in,
-  checkOut: row.check_out,
-  guests: row.guests,
-  status: row.status,
-  created: row.created_at,
-});
-
 export const bookings = {
   async list() {
     const db = await getClient();
     const rows = await run(db.from("bookings").select("*").order("check_in", { ascending: true }));
-    return rows.map(toBooking);
+    return rows.map(serialize.booking.fromRow);
   },
   async add(booking) {
     const db = await getClient();
-    const row = await run(db.from("bookings").insert({
-      hotel_id: booking.hotelId,
-      check_in: booking.checkIn,
-      check_out: booking.checkOut,
-      guests: booking.guests,
-    }).select().single());
-    return toBooking(row);
+    const row = await run(db.from("bookings").insert(serialize.booking.toRow(validateBooking(booking))).select().single());
+    return serialize.booking.fromRow(row);
   },
   async remove(id) {
     const db = await getClient();
@@ -247,15 +183,9 @@ export const bookings = {
   },
 };
 
-const MESSAGE_COLUMNS = "id, user_id, author_name, body, created_at";
+const MESSAGE_COLUMNS = serialize.message.columns;
 
-const toMessage = (row) => ({
-  id: row.id,
-  who: row.author_name,
-  text: row.body,
-  at: row.created_at,
-  mine: Boolean(me) && row.user_id === me.id,
-});
+const toMessage = (row) => serialize.message.fromRow(row, me?.id);
 
 export const community = {
   async rooms() {
@@ -268,15 +198,8 @@ export const community = {
     const latest = await Promise.all(rooms.map((room) => run(db.from("messages")
       .select(MESSAGE_COLUMNS).eq("room_id", room.id)
       .order("created_at", { ascending: false }).limit(1))));
-    return rooms.map((room, index) => ({
-      id: room.id,
-      name: room.name,
-      initials: room.initials,
-      groups: room.groups,
-      members: room.members,
-      joined: joined.has(room.id),
-      last: latest[index][0] ? toMessage(latest[index][0]) : null,
-    }));
+    return rooms.map((room, index) => serialize.room.fromRow(
+      room, joined.has(room.id), latest[index][0] ? toMessage(latest[index][0]) : null));
   },
   async messages(roomId) {
     const db = await getClient();
@@ -286,7 +209,7 @@ export const community = {
   },
   async send(roomId, text) {
     const db = await getClient();
-    const row = await run(db.from("messages").insert({ room_id: roomId, body: text })
+    const row = await run(db.from("messages").insert({ room_id: roomId, body: validateMessage(text) })
       .select(MESSAGE_COLUMNS).single());
     return toMessage(row);
   },
@@ -311,35 +234,7 @@ export const community = {
   },
 };
 
-const toPlace = (row) => ({
-  id: row.id,
-  name: row.name,
-  category: row.category,
-  region: row.region,
-  where: row.area,
-  rating: Number(row.rating),
-  reviews: row.reviews,
-  image: row.image,
-  imageAlt: row.image_alt,
-  gallery: row.gallery,
-  about: row.about,
-  facts: row.facts,
-  stay: { hotel: row.stay_hotel, note: row.stay_note },
-  related: row.related,
-  map: { x: Number(row.map_x), y: Number(row.map_y) },
-  featured: row.featured,
-});
-
-const toHotel = (row) => ({
-  id: row.id,
-  name: row.name,
-  area: row.area,
-  region: row.region,
-  price: row.price,
-  rating: Number(row.rating),
-  amenities: row.amenities,
-  image: row.image,
-});
+export { run };
 
 export async function catalog() {
   const db = await getClient();
@@ -350,8 +245,8 @@ export async function catalog() {
   ]);
   if (!places.length) throw new Error("The places table is empty.");
   return {
-    places: places.map(toPlace),
-    hotels: hotels.map(toHotel),
+    places: places.filter((row) => !row.hidden).map(serialize.place.fromRow),
+    hotels: hotels.filter((row) => !row.hidden).map(serialize.hotel.fromRow),
     amenities: Object.fromEntries(amenities.map((row) => [row.key, row.label])),
   };
 }

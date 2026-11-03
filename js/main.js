@@ -11,9 +11,10 @@ import stays from "./pages/stays.js";
 import community from "./pages/community.js";
 import signin from "./pages/signin.js";
 import profile from "./pages/profile.js";
+import admin from "./pages/admin.js";
 
 const DATA_PAGES = { home, explore, place, trips, stays, profile };
-const PLAIN_PAGES = { community, signin };
+const PLAIN_PAGES = { community, signin, admin };
 
 function showLoadError(error) {
   console.error(error);

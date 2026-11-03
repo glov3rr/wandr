@@ -1,3 +1,5 @@
+import { validateTrip, validateBooking, validateProfile, validateMessage } from "./validators.js";
+
 const PREFIX = "wandr:";
 const SAMPLE_VISITED = ["kakum", "cape-coast", "labadi"];
 
@@ -81,8 +83,8 @@ export async function changeEmail(email) {
   write("user", { ...read("user", {}), email });
 }
 
-export async function saveProfile(changes) {
-  const { prefs, ...rest } = changes;
+export async function saveProfile(input) {
+  const { prefs, ...rest } = validateProfile(input);
   if (prefs) write("prefs", prefs);
   write("user", { ...read("user", {}), ...rest });
 }
@@ -114,8 +116,11 @@ function recordList(key, build) {
   };
 }
 
-export const trips = recordList("trips", (trip) => ({ ...trip, status: trip.start ? "planned" : "draft" }));
-export const bookings = recordList("bookings", (booking) => ({ ...booking, status: "requested" }));
+export const trips = recordList("trips", (input) => {
+  const trip = validateTrip(input);
+  return { ...trip, status: trip.start ? "planned" : "draft" };
+});
+export const bookings = recordList("bookings", (input) => ({ ...validateBooking(input), status: "requested" }));
 
 async function seedRooms() {
   const response = await fetch("data/wandr.json");
@@ -161,7 +166,7 @@ export const community = {
   },
   async send(roomId, text) {
     const user = signedInUser();
-    const message = { id: newId(), who: user.name, text, at: new Date().toISOString(), mine: true };
+    const message = { id: newId(), who: user.name, text: validateMessage(text), at: new Date().toISOString(), mine: true };
     const stored = read("messages", {});
     write("messages", { ...stored, [roomId]: [...(stored[roomId] || []), message] });
     return message;

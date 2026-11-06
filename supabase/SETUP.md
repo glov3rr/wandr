@@ -87,3 +87,22 @@ To add another admin later, run step 2 again with their email. To remove one:
 ```sql
 delete from public.admins where user_id = (select id from auth.users where email = 'them@example.com');
 ```
+
+## Community chat
+
+Run `supabase/003_community.sql` once in **SQL Editor** after `002_admin.sql`. It is safe to run again.
+
+What it does:
+
+- deletes the sample messages and resets each room's member count to the real number
+- keeps the 6 starter rooms and gives each a short description
+- lets any signed-in traveller start a public room (up to 3 a day; names must be unique)
+- tracks unread messages per room for each member
+- lets people delete their own messages and report other people's
+- turns on live updates for rooms, so new rooms and previews appear without a refresh
+- deleting an account now deletes that person's messages too
+
+Moderation lives in **Admin**: the **Rooms** tab deletes a room with all its messages, and the
+**Reports** tab shows reported messages so you can delete them or keep them.
+
+Messages are public: anyone can read a room, but only signed-in members can post.

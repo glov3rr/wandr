@@ -144,3 +144,42 @@ export function exportCatalog(data) {
     amenities: Object.fromEntries(data.amenities.map((item) => [item.key, item.label])),
   };
 }
+
+export async function loadCommunity() {
+  const db = await getClient();
+  const [rooms, reports] = await Promise.all([
+    run(db.from("rooms").select("*").order("created_at", { ascending: false })),
+    run(db.rpc("admin_reports")),
+  ]).catch((error) => {
+    if (/admin_reports|created_at|function/i.test(error.message)) {
+      throw new Error("Run supabase/003_community.sql in Supabase to manage rooms and reports.");
+    }
+    throw error;
+  });
+  return {
+    rooms: rooms.map((row) => serialize.room.fromRow(row)),
+    reports: reports.map(serialize.report.fromRow),
+  };
+}
+
+export async function deleteRoom(id) {
+  return guard(async () => {
+    const db = await getClient();
+    const removed = await run(db.from("rooms").delete().eq("id", id).select("id"));
+    if (!removed.length) throw new Error("That room couldn't be deleted. It may already be gone.");
+  });
+}
+
+export async function deleteMessage(messageId) {
+  return guard(async () => {
+    const db = await getClient();
+    await run(db.rpc("delete_message", { target: messageId }));
+  });
+}
+
+export async function dismissReports(messageId) {
+  return guard(async () => {
+    const db = await getClient();
+    await run(db.from("reports").delete().eq("message_id", messageId));
+  });
+}

@@ -42,6 +42,8 @@ function updatedText(iso) {
 export default async function adminPage() {
   const root = $("[data-admin-root]");
   let data = null;
+  let chat = null;
+  let chatError = "";
   let leaveGuard = null;
 
   const notFound = () => {
@@ -63,8 +65,18 @@ export default async function adminPage() {
     data = await admin.load();
   }
 
+  async function refreshChat() {
+    try {
+      chat = await admin.loadCommunity();
+      chatError = "";
+    } catch (error) {
+      chat = null;
+      chatError = error.message;
+    }
+  }
+
   try {
-    await refresh();
+    await Promise.all([refresh(), refreshChat()]);
   } catch (error) {
     root.innerHTML = `<p class="load-error" role="alert">${escapeHTML(error.message)}</p>`;
     return;
@@ -86,26 +98,165 @@ export default async function adminPage() {
     }
   }
 
-  function listView(tab) {
-    leaveGuard = null;
-    const isPlaces = tab === "places";
-    const items = isPlaces ? data.places : data.hotels;
-    root.innerHTML = `
+  function topHTML(tab, actions) {
+    const reports = chat?.reports.length || 0;
+    const tabs = [
+      ["places", "Places", data.places.length],
+      ["stays", "Stays", data.hotels.length],
+      ["rooms", "Rooms", chat ? chat.rooms.length : "–"],
+      ["reports", "Reports", chat ? reports : "–"],
+    ];
+    return `
       <section class="intro admin-intro">
         <div>
           <p class="intro__greeting">Admin</p>
           <h1 class="intro__title">Manage Wandr</h1>
         </div>
-        <div class="admin-intro__actions">
-          <button class="btn" type="button" data-export>Download backup</button>
-          <a class="btn btn--solid" href="#${isPlaces ? "place" : "stay"}/new">${isPlaces ? "Add a place" : "Add a stay"}</a>
-        </div>
+        <div class="admin-intro__actions">${actions}</div>
       </section>
 
       <nav class="admin-tabs" aria-label="What to manage">
-        <a href="#places" ${isPlaces ? 'aria-current="page"' : ""}>Places <span>${data.places.length}</span></a>
-        <a href="#stays" ${!isPlaces ? 'aria-current="page"' : ""}>Stays <span>${data.hotels.length}</span></a>
-      </nav>
+        ${tabs.map(([id, label, count]) => `
+          <a href="#${id}" ${tab === id ? 'aria-current="page"' : ""}>${label}
+            <span${id === "reports" && reports ? ' class="admin-tabs__alert"' : ""}>${count}</span></a>`).join("")}
+      </nav>`;
+  }
+
+  const ago = (iso) => {
+    if (!iso) return "No messages yet";
+    const minutes = Math.round((Date.now() - new Date(iso)) / 60000);
+    if (minutes < 1) return "Active just now";
+    if (minutes < 60) return `Active ${minutes} min ago`;
+    if (minutes < 1440) return `Active ${Math.round(minutes / 60)} h ago`;
+    return `Active ${new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`;
+  };
+
+  const sentAt = (iso) => new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+
+  function chatProblem(tab) {
+    root.innerHTML = `${topHTML(tab, `<a class="btn" href="community.html">Open community</a>`)}
+      <p class="load-error" role="alert">${escapeHTML(chatError || "Couldn't load the community.")}</p>`;
+  }
+
+  function roomsView() {
+    leaveGuard = null;
+    if (!chat) return chatProblem("rooms");
+    root.innerHTML = `
+      ${topHTML("rooms", `<a class="btn" href="community.html">Open community</a>`)}
+      <p class="admin-lead">Rooms travellers can join. Deleting a room removes all of its messages for everyone.</p>
+      <div class="admin-toolbar">
+        <label class="visually-hidden" for="admin-search">Search</label>
+        <input class="search__input" id="admin-search" type="search" placeholder="Search rooms…">
+      </div>
+      <ul class="admin-list" data-admin-list>
+        ${chat.rooms.map((room) => `
+          <li data-search="${escapeHTML(`${room.name} ${room.description} ${room.createdBy}`.toLowerCase())}">
+            <div class="admin-row admin-row--static">
+              <span class="admin-row__img admin-row__img--initials" aria-hidden="true">${escapeHTML(room.initials)}</span>
+              <span class="admin-row__main">
+                <span class="admin-row__name">${escapeHTML(room.name)}</span>
+                <span class="admin-row__meta">${room.members} ${room.members === 1 ? "member" : "members"} · ${ago(room.last?.at)} · ${room.createdBy ? `Started by ${escapeHTML(room.createdBy)}` : "Wandr room"}</span>
+              </span>
+              <span class="admin-row__actions">
+                <a class="btn" href="community.html?room=${encodeURIComponent(room.id)}">Open</a>
+                <button class="btn btn--danger" type="button" data-delete-room="${escapeHTML(room.id)}">Delete</button>
+              </span>
+            </div>
+          </li>`).join("")}
+      </ul>
+      <p class="empty" ${chat.rooms.length ? "hidden" : ""} data-admin-empty>${chat.rooms.length ? "Nothing matches that search." : "No rooms yet."}</p>`;
+
+    const search = $("#admin-search");
+    search.addEventListener("input", () => {
+      const query = search.value.trim().toLowerCase();
+      let shown = 0;
+      $$("[data-admin-list] > li").forEach((row) => {
+        row.hidden = !row.dataset.search.includes(query);
+        if (!row.hidden) shown++;
+      });
+      $("[data-admin-empty]").hidden = shown > 0;
+    });
+
+    $("[data-admin-list]").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-delete-room]");
+      if (!button) return;
+      const room = chat.rooms.find((item) => item.id === button.dataset.deleteRoom);
+      openDialog({
+        title: `Delete ${escapeHTML(room.name)}?`,
+        submitLabel: "Delete room",
+        body: `<p>This removes the room and all of its messages for everyone. It can't be undone.</p>`,
+        onSubmit() {
+          admin.deleteRoom(room.id)
+            .then(async () => {
+              await refreshChat();
+              toast(`${room.name} deleted.`);
+              roomsView();
+            })
+            .catch((error) => toast(error.message));
+        },
+      });
+    });
+  }
+
+  function reportsView() {
+    leaveGuard = null;
+    if (!chat) return chatProblem("reports");
+    root.innerHTML = `
+      ${topHTML("reports", `<button class="btn" type="button" data-reload>Check for new reports</button>`)}
+      <p class="admin-lead">Messages travellers reported. Delete the message if it breaks the rules, or keep it to clear the report.</p>
+      ${chat.reports.length ? `
+        <ul class="admin-reports">
+          ${chat.reports.map((report) => `
+            <li class="admin-report" data-report="${report.messageId}">
+              <div class="admin-report__head">
+                <span class="admin-badge">${report.count} ${report.count === 1 ? "report" : "reports"}</span>
+                <span class="admin-report__where">${escapeHTML(report.roomName)} · ${sentAt(report.at)}</span>
+              </div>
+              <blockquote class="admin-report__quote"><strong>${escapeHTML(report.who)}</strong><span>${escapeHTML(report.text)}</span></blockquote>
+              ${report.reasons.length ? `<ul class="admin-report__reasons">${report.reasons.map((reason) => `<li>${escapeHTML(reason)}</li>`).join("")}</ul>` : ""}
+              <div class="admin-report__actions">
+                <a class="link-btn" href="community.html?room=${encodeURIComponent(report.roomId)}">See the room</a>
+                <button class="btn" type="button" data-keep>Keep message</button>
+                <button class="btn btn--solid" type="button" data-remove>Delete message</button>
+              </div>
+            </li>`).join("")}
+        </ul>`
+        : `<section class="empty admin-empty">
+            <h2>No reports</h2>
+            <p>When someone reports a message, it shows up here.</p>
+          </section>`}`;
+
+    $("[data-reload]").addEventListener("click", async (event) => {
+      await whileBusy(event.currentTarget, "Checking…", refreshChat);
+      reportsView();
+    });
+
+    $(".admin-reports")?.addEventListener("click", async (event) => {
+      const card = event.target.closest("[data-report]");
+      const button = event.target.closest("[data-keep], [data-remove]");
+      if (!card || !button) return;
+      const id = Number(card.dataset.report);
+      const removing = button.hasAttribute("data-remove");
+      try {
+        await whileBusy(button, removing ? "Deleting…" : "Clearing…",
+          () => (removing ? admin.deleteMessage(id) : admin.dismissReports(id)));
+        await refreshChat();
+        toast(removing ? "Message deleted. The reports are cleared too." : "Report cleared. The message stays.");
+        reportsView();
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+  }
+
+  function listView(tab) {
+    leaveGuard = null;
+    const isPlaces = tab === "places";
+    const items = isPlaces ? data.places : data.hotels;
+    root.innerHTML = `
+      ${topHTML(tab, `
+        <button class="btn" type="button" data-export>Download backup</button>
+        <a class="btn btn--solid" href="#${isPlaces ? "place" : "stay"}/new">${isPlaces ? "Add a place" : "Add a stay"}</a>`)}
 
       <div class="admin-toolbar">
         <label class="visually-hidden" for="admin-search">Search</label>
@@ -710,6 +861,8 @@ export default async function adminPage() {
     window.scrollTo(0, 0);
     if (view === "place" && id) return placeEditor(decodeURIComponent(id));
     if (view === "stay" && id) return hotelEditor(decodeURIComponent(id));
+    if (view === "rooms") return roomsView();
+    if (view === "reports") return reportsView();
     return listView(view === "stays" ? "stays" : "places");
   }
 

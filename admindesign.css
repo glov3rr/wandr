@@ -545,3 +545,146 @@
 .admin-prefix > span {
   white-space: nowrap;
 }
+
+.admin-tabs {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.admin-tabs a {
+  white-space: nowrap;
+}
+
+.admin-tabs a span.admin-tabs__alert {
+  color: #fff;
+  background-color: var(--accent);
+}
+
+.admin-lead {
+  margin: -4px 0 16px;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.admin-row--static {
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+}
+
+.admin-row--static:hover {
+  border-color: var(--line);
+}
+
+.admin-row__img--initials {
+  width: 54px;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.admin-row__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-row__actions .btn {
+  padding: 7px 14px;
+  font-size: 13px;
+}
+
+.admin-reports {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-report {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.admin-report__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-report__where {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.admin-report__quote {
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  background-color: var(--cream);
+  border-radius: 10px;
+}
+
+.admin-report__quote strong {
+  display: block;
+  font-size: 12.5px;
+}
+
+.admin-report__quote span {
+  white-space: pre-wrap;
+}
+
+.admin-report__reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.admin-report__reasons li {
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.admin-report__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-report__actions .link-btn {
+  margin-right: auto;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-empty h2 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 760px) {
+  .admin-row--static {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .admin-row__img--initials {
+    width: 44px;
+    height: 44px;
+  }
+
+  .admin-row__actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+
+  .admin-row--static .admin-row__meta {
+    white-space: normal;
+  }
+}

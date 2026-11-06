@@ -90,28 +90,54 @@ export const booking = {
 };
 
 export const message = {
-  columns: "id, user_id, author_name, body, created_at",
+  columns: "id, room_id, user_id, author_name, body, created_at, deleted",
   fromRow(row, myId) {
     return {
       id: row.id,
-      who: row.author_name,
-      text: row.body,
+      roomId: row.room_id,
+      who: row.author_name || "Traveller",
+      text: row.deleted ? "" : row.body,
       at: row.created_at,
+      deleted: Boolean(row.deleted),
       mine: Boolean(myId) && row.user_id === myId,
     };
   },
 };
 
 export const room = {
-  fromRow(row, joined, last) {
+  fromRow(row, { joined = false, unread = 0, myId = null } = {}) {
     return {
       id: row.id,
       name: row.name,
       initials: row.initials,
-      groups: row.groups,
-      members: row.members,
+      groups: row.groups || [],
+      description: row.description || "",
+      members: row.members ?? 0,
+      sort: row.sort ?? 0,
+      createdBy: row.created_by_name || "",
+      createdAt: row.created_at || null,
+      mine: Boolean(myId) && row.created_by === myId,
       joined,
-      last,
+      unread,
+      last: row.last_message_at
+        ? { who: row.last_author, text: row.last_body, at: row.last_message_at, mine: Boolean(myId) && row.last_user_id === myId }
+        : null,
+    };
+  },
+};
+
+export const report = {
+  fromRow(row) {
+    return {
+      messageId: row.message_id,
+      roomId: row.room_id,
+      roomName: row.room_name,
+      who: row.author_name,
+      text: row.body,
+      at: row.sent_at,
+      count: row.reports,
+      reasons: row.reasons || [],
+      lastReported: row.last_reported,
     };
   },
 };

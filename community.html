@@ -49,7 +49,7 @@
   <main class="page">
 
     <section class="intro">
-      <p class="intro__greeting">6 rooms · 1,240 travellers</p>
+      <p class="intro__greeting" data-community-stats>Talk with other travellers</p>
       <h1 class="intro__title">Community</h1>
     </section>
 
@@ -63,94 +63,47 @@
       </ul>
     </section>
 
-    <section class="community">
-      <aside class="rooms">
-        <h2 class="rooms__title">Chat rooms</h2>
+    <section class="community" data-community>
+      <aside class="rooms" aria-label="Chat rooms">
+        <div class="rooms__head">
+          <h2 class="rooms__title">Chat rooms</h2>
+          <button class="btn rooms__new" type="button" data-new-room>New room</button>
+        </div>
+        <label class="visually-hidden" for="room-search">Find a room</label>
+        <input class="rooms__search" id="room-search" type="search" placeholder="Find a room" autocomplete="off">
         <ul class="rooms__list" data-rooms>
-          <li class="room room--open" data-room="kakum" data-groups="joined regions">
-            <span class="avatar avatar--kakum" aria-hidden="true">KC</span>
-            <div class="room__body">
-              <h3 class="room__name"><button class="link-btn" type="button">Kakum &amp; Cape Coast</button></h3>
-              <p class="room__last">Ama: Go on a weekday if you can</p>
-            </div>
-            <div class="room__meta">
-              <time datetime="2026-09-12T09:14">09:14</time>
-              <span class="badge">3</span>
-            </div>
-          </li>
-          <li class="room" data-room="volta" data-groups="regions">
-            <span class="avatar avatar--volta" aria-hidden="true">VR</span>
-            <div class="room__body">
-              <h3 class="room__name"><button class="link-btn" type="button">Volta Region</button></h3>
-              <p class="room__last">Kojo: Afadjato in the rainy season?</p>
-            </div>
-            <div class="room__meta">
-              <time datetime="2026-09-12T08:02">08:02</time>
-            </div>
-          </li>
-          <li class="room" data-room="accra" data-groups="joined buddies">
-            <span class="avatar avatar--accra" aria-hidden="true">AW</span>
-            <div class="room__body">
-              <h3 class="room__name"><button class="link-btn" type="button">Accra Weekenders</button></h3>
-              <p class="room__last">Naa: Labadi was packed on Sunday</p>
-            </div>
-            <div class="room__meta">
-              <time datetime="2026-09-11T21:40">Yesterday</time>
-              <span class="badge">7</span>
-            </div>
-          </li>
-          <li class="room" data-room="mole" data-groups="regions">
-            <span class="avatar avatar--mole" aria-hidden="true">MS</span>
-            <div class="room__body">
-              <h3 class="room__name"><button class="link-btn" type="button">Mole Safari</button></h3>
-              <p class="room__last">Yaw: Saw elephants at the waterhole</p>
-            </div>
-            <div class="room__meta">
-              <time datetime="2026-09-11T17:22">Yesterday</time>
-            </div>
-          </li>
-          <li class="room" data-room="solo" data-groups="joined buddies">
-            <span class="avatar avatar--solo" aria-hidden="true">SG</span>
-            <div class="room__body">
-              <h3 class="room__name"><button class="link-btn" type="button">Solo travellers Ghana</button></h3>
-              <p class="room__last">Efua: Anyone heading north in October?</p>
-            </div>
-            <div class="room__meta">
-              <time datetime="2026-09-10T14:05">Wed</time>
-              <span class="badge">2</span>
-            </div>
-          </li>
-          <li class="room" data-room="north" data-groups="regions">
-            <span class="avatar avatar--north" aria-hidden="true">NG</span>
-            <div class="room__body">
-              <h3 class="room__name"><button class="link-btn" type="button">Northern Ghana</button></h3>
-              <p class="room__last">Musah: Tamale to Mole is about 2 hours</p>
-            </div>
-            <div class="room__meta">
-              <time datetime="2026-09-09T11:30">Tue</time>
-            </div>
-          </li>
+          <li class="rooms__note">Loading rooms…</li>
         </ul>
+        <p class="rooms__note" data-rooms-empty hidden>No rooms match. Try another word or start a new room.</p>
       </aside>
 
       <div class="chat" id="chat">
         <header class="chat__head">
-          <span class="avatar avatar--kakum" aria-hidden="true">KC</span>
-          <div>
-            <h2 class="chat__name">Kakum &amp; Cape Coast</h2>
-            <p class="chat__count">218 members · 12 online</p>
+          <button class="chat__back" type="button" data-back aria-label="Back to rooms">‹</button>
+          <span class="avatar" aria-hidden="true"></span>
+          <div class="chat__info">
+            <h2 class="chat__name">Community</h2>
+            <p class="chat__count"></p>
           </div>
-          <button class="btn" type="button" data-leave>Leave room</button>
+          <button class="btn" type="button" data-leave hidden>Leave room</button>
         </header>
+        <p class="chat__about" data-about hidden></p>
 
-        <ol class="messages" aria-live="polite"></ol>
+        <div class="messages-wrap">
+          <ol class="messages" aria-label="Messages"></ol>
+          <button class="chat__jump" type="button" data-jump hidden>New messages ↓</button>
+        </div>
 
-        <form class="composer" data-composer>
+        <form class="composer" data-composer hidden>
           <label class="visually-hidden" for="message">Message</label>
-          <input class="composer__input" type="text" id="message" name="message"
-                 placeholder="Message the room..." autocomplete="off">
+          <textarea class="composer__input" id="message" name="message" rows="1" maxlength="1000"
+                    placeholder="Message the room…" autocomplete="off"></textarea>
           <button class="btn btn--solid" type="submit">Send</button>
         </form>
+        <div class="composer-gate" data-gate hidden>
+          <p data-gate-text></p>
+          <button class="btn btn--solid" type="button" data-gate-action></button>
+        </div>
       </div>
     </section>
 

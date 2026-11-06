@@ -193,8 +193,36 @@ export function validateProfile(changes) {
 
 export function validateMessage(body) {
   const c = checker();
-  const value = text(body);
+  const value = text(body).replace(/\r\n?/g, "\n").replace(/\n{3,}/g, "\n\n");
   c.require("text", value.length >= 1, "Write a message first.");
   c.require("text", value.length <= 1000, "Keep messages under 1,000 characters.");
   return c.done(value);
+}
+
+export const ROOM_TOPICS = { "": "General chat", regions: "A region or place", buddies: "Trip buddies" };
+
+export const REPORT_REASONS = ["Spam or advertising", "Harassment or hate", "Unsafe or misleading advice", "Something else"];
+
+const oneLine = (value) => text(value).replace(/\s+/g, " ");
+
+export function validateRoom(input) {
+  const c = checker();
+  const name = oneLine(input.name);
+  const description = oneLine(input.description);
+  const topic = text(input.topic);
+  c.require("name", name.length >= 3 && name.length <= 40, "Room names need 3 to 40 characters.");
+  c.require("name", /[\p{L}\p{N}]/u.test(name), "Use letters or numbers in the room name.");
+  c.require("description", description.length <= 160, "Keep the description under 160 characters.");
+  c.require("topic", Object.hasOwn(ROOM_TOPICS, topic), "Choose a topic from the list.");
+  return c.done({ name, description, topic });
+}
+
+export function validateReport(input) {
+  const c = checker();
+  const reason = text(input.reason);
+  const details = oneLine(input.details);
+  c.require("reason", REPORT_REASONS.includes(reason), "Choose a reason.");
+  c.require("details", details.length <= 240, "Keep the details under 240 characters.");
+  c.require("details", reason !== "Something else" || details.length > 0, "Tell us what's wrong.");
+  return c.done(details ? `${reason}: ${details}` : reason);
 }

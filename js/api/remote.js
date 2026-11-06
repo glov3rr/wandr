@@ -1,6 +1,6 @@
 import { getClient } from "../lib/supabase.js";
 import * as serialize from "./serializers.js";
-import { validateTrip, validateBooking, validateProfile, validateMessage } from "./validators.js";
+import { validateTrip, validateBooking, validateProfile, validateMessage, validateRoom, validateReport } from "./validators.js";
 
 let me = null;
 
@@ -11,6 +11,10 @@ const AUTH_MESSAGES = [
   [/rate limit|too many/i, "Too many attempts. Wait a minute and try again."],
   [/password should be|weak password/i, "Choose a stronger password: 8 or more characters with letters and numbers."],
   [/failed to fetch|network/i, "Wandr can't reach the server. Check your connection and try again."],
+  [/reports_message_id_reporter_key/, "You've already reported this message. Thanks."],
+  [/row-level security policy for table "messages"/, "Join the room to send messages."],
+  [/row-level security policy for table "reports"/, "You can't report this message."],
+  [/my_unread|create_room|mark_read|delete_message|admin_reports|column .*(deleted|last_message_at)/, "The chat needs an update. Run supabase/003_community.sql in Supabase."],
 ];
 
 function friendly(error) {
@@ -183,35 +187,57 @@ export const bookings = {
   },
 };
 
-const MESSAGE_COLUMNS = serialize.message.columns;
-
+const PAGE = 40;
 const toMessage = (row) => serialize.message.fromRow(row, me?.id);
+const toRoom = (row, joined = false, unread = 0) => serialize.room.fromRow(row, { joined, unread, myId: me?.id });
 
 export const community = {
+  live: true,
   async rooms() {
     const db = await getClient();
-    const [rooms, memberships] = await Promise.all([
+    const [rows, unread] = await Promise.all([
       run(db.from("rooms").select("*").order("sort")),
-      me ? run(db.from("room_members").select("room_id")) : [],
+      me ? run(db.rpc("my_unread")) : [],
     ]);
-    const joined = new Set(memberships.map((row) => row.room_id));
-    const latest = await Promise.all(rooms.map((room) => run(db.from("messages")
-      .select(MESSAGE_COLUMNS).eq("room_id", room.id)
-      .order("created_at", { ascending: false }).limit(1))));
-    return rooms.map((room, index) => serialize.room.fromRow(
-      room, joined.has(room.id), latest[index][0] ? toMessage(latest[index][0]) : null));
+    const counts = new Map(unread.map((row) => [row.room_id, row.unread]));
+    return rows.map((row) => toRoom(row, counts.has(row.id), counts.get(row.id) || 0));
   },
-  async messages(roomId) {
+  async messages(roomId, beforeId) {
     const db = await getClient();
-    const rows = await run(db.from("messages").select(MESSAGE_COLUMNS).eq("room_id", roomId)
-      .order("created_at", { ascending: false }).limit(50));
-    return rows.reverse().map(toMessage);
+    let query = db.from("messages").select(serialize.message.columns).eq("room_id", roomId);
+    if (beforeId) query = query.lt("id", beforeId);
+    const rows = await run(query.order("id", { ascending: false }).limit(PAGE + 1));
+    return { messages: rows.slice(0, PAGE).reverse().map(toMessage), more: rows.length > PAGE };
   },
   async send(roomId, text) {
     const db = await getClient();
     const row = await run(db.from("messages").insert({ room_id: roomId, body: validateMessage(text) })
-      .select(MESSAGE_COLUMNS).single());
+      .select(serialize.message.columns).single());
     return toMessage(row);
+  },
+  async create(input) {
+    const value = validateRoom(input);
+    const db = await getClient();
+    const row = await run(db.rpc("create_room", {
+      room_name: value.name,
+      room_description: value.description,
+      room_topic: value.topic,
+    }));
+    return toRoom(Array.isArray(row) ? row[0] : row, true, 0);
+  },
+  async remove(messageId) {
+    const db = await getClient();
+    await run(db.rpc("delete_message", { target: messageId }));
+  },
+  async report(messageId, input) {
+    const reason = validateReport(input);
+    const db = await getClient();
+    await run(db.from("reports").insert({ message_id: messageId, reason }));
+  },
+  async markRead(roomId) {
+    if (!me) return;
+    const db = await getClient();
+    await db.rpc("mark_read", { target: roomId }).then(() => {}, () => {});
   },
   async join(roomId) {
     const db = await getClient();
@@ -223,13 +249,26 @@ export const community = {
     await run(db.from("room_members").delete().eq("room_id", roomId).eq("user_id", me.id));
     return (await run(db.from("rooms").select("members").eq("id", roomId).single())).members;
   },
-  async listen(roomId, onMessage) {
+  async watch({ message, room, roomGone }) {
     const db = await getClient();
-    const channel = db.channel(`room-${roomId}`)
-      .on("postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages", filter: `room_id=eq.${roomId}` },
-        (payload) => onMessage(toMessage(payload.new)))
+    const channel = db.channel("community")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => message(toMessage(payload.new)))
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages" },
+        (payload) => message(toMessage(payload.new)))
+      .on("postgres_changes", { event: "*", schema: "public", table: "rooms" },
+        (payload) => (payload.eventType === "DELETE" ? roomGone(payload.old.id) : room(toRoom(payload.new))))
       .subscribe();
+    return () => db.removeChannel(channel);
+  },
+  async presence(roomId, onCount) {
+    const db = await getClient();
+    const channel = db.channel(`here-${roomId}`, { config: { presence: { key: me?.id || "" } } });
+    channel
+      .on("presence", { event: "sync" }, () => onCount(Object.keys(channel.presenceState()).length))
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED" && me) channel.track({ name: me.name });
+      });
     return () => db.removeChannel(channel);
   },
 };

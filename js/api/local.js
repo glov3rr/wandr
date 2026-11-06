@@ -1,4 +1,4 @@
-import { validateTrip, validateBooking, validateProfile, validateMessage } from "./validators.js";
+import { validateTrip, validateBooking, validateProfile, validateMessage, validateRoom, validateReport, slugify } from "./validators.js";
 
 const PREFIX = "wandr:";
 const SAMPLE_VISITED = ["kakum", "cape-coast", "labadi"];
@@ -90,7 +90,7 @@ export async function saveProfile(input) {
 }
 
 export async function deleteAccount() {
-  ["user", "visited", "saved", "prefs", "trips", "bookings", "rooms", "messages"].forEach(remove);
+  ["user", "visited", "saved", "prefs", "trips", "bookings", "rooms", "messages", "created-rooms", "read-at"].forEach(remove);
 }
 
 function placeList(key) {
@@ -122,64 +122,131 @@ export const trips = recordList("trips", (input) => {
 });
 export const bookings = recordList("bookings", (input) => ({ ...validateBooking(input), status: "requested" }));
 
+const PAGE = 40;
+const channel = typeof BroadcastChannel === "function" ? new BroadcastChannel("wandr-community") : null;
+
 async function seedRooms() {
   const response = await fetch("data/wandr.json");
   if (!response.ok) throw new Error("Wandr couldn't load the chat rooms.");
   return (await response.json()).rooms;
 }
 
-function seedMessages(room) {
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-  return room.messages.map((message, index) => ({
-    id: `${room.id}-${index}`,
-    who: message.who,
-    text: message.text,
-    at: new Date(`${yesterday}T${message.time}:00`).toISOString(),
-    mine: false,
-  }));
+async function allRooms() {
+  return [...(await seedRooms()), ...read("created-rooms", [])];
 }
 
-function allMessages(room) {
-  return [...seedMessages(room), ...(read("messages", {})[room.id] || [])];
+const roomMessages = (roomId) => read("messages", {})[roomId] || [];
+
+function shape(room) {
+  const user = signedInUser();
+  const joined = Boolean(user) && read("rooms", []).includes(room.id);
+  const visible = roomMessages(room.id).filter((message) => !message.deleted);
+  const readAt = read("read-at", {})[room.id] || "";
+  return {
+    id: room.id,
+    name: room.name,
+    initials: room.initials,
+    groups: room.groups || [],
+    description: room.description || "",
+    members: joined ? 1 : 0,
+    sort: room.sort ?? 0,
+    createdBy: room.createdBy || "",
+    createdAt: room.createdAt || null,
+    mine: Boolean(room.createdBy),
+    joined,
+    unread: joined ? visible.filter((message) => !message.mine && message.at > readAt).length : 0,
+    last: visible.at(-1) || null,
+  };
+}
+
+function tell(kind, payload) {
+  channel?.postMessage({ kind, payload });
 }
 
 export const community = {
+  live: false,
   async rooms() {
-    const joined = read("rooms", ["kakum", "accra", "solo"]);
-    return (await seedRooms()).map((room) => {
-      const messages = allMessages(room);
-      const isJoined = Boolean(signedInUser()) && joined.includes(room.id);
-      return {
-        id: room.id,
-        name: room.name,
-        initials: room.initials,
-        groups: room.groups,
-        members: room.members + (isJoined ? 1 : 0),
-        joined: isJoined,
-        last: messages.at(-1) || null,
-      };
-    });
+    return (await allRooms()).map(shape);
   },
-  async messages(roomId) {
-    const room = (await seedRooms()).find((item) => item.id === roomId);
-    return room ? allMessages(room) : [];
+  async messages(roomId, beforeId) {
+    const all = roomMessages(roomId);
+    const end = beforeId ? all.findIndex((message) => message.id === beforeId) : all.length;
+    const start = Math.max(0, end - PAGE);
+    return { messages: all.slice(start, end), more: start > 0 };
   },
   async send(roomId, text) {
     const user = signedInUser();
-    const message = { id: newId(), who: user.name, text: validateMessage(text), at: new Date().toISOString(), mine: true };
+    if (!user) throw new Error("Sign in to send messages.");
+    if (!read("rooms", []).includes(roomId)) throw new Error("Join the room to send messages.");
+    const message = { id: newId(), roomId, who: user.name, text: validateMessage(text), at: new Date().toISOString(), deleted: false, mine: true };
     const stored = read("messages", {});
     write("messages", { ...stored, [roomId]: [...(stored[roomId] || []), message] });
+    tell("message", message);
     return message;
   },
+  async create(input) {
+    const user = signedInUser();
+    if (!user) throw new Error("Sign in to create a room.");
+    const value = validateRoom(input);
+    const rooms = await allRooms();
+    if (rooms.some((room) => room.name.toLowerCase() === value.name.toLowerCase())) {
+      throw new Error(`There's already a room called ${value.name}. Join that one instead.`);
+    }
+    const base = slugify(value.name) || "room";
+    let id = base;
+    for (let n = 2; rooms.some((room) => room.id === id); n++) id = `${base}-${n}`;
+    const words = value.name.replace(/[^\p{L}\p{N} ]/gu, "").split(" ").filter(Boolean);
+    const room = {
+      id,
+      name: value.name,
+      initials: ((words[0]?.[0] || "R") + (words[1]?.[0] || "")).toUpperCase(),
+      groups: value.topic ? [value.topic] : [],
+      description: value.description,
+      sort: rooms.length,
+      createdBy: user.name,
+      createdAt: new Date().toISOString(),
+    };
+    write("created-rooms", [...read("created-rooms", []), room]);
+    write("rooms", [...read("rooms", []), id]);
+    return shape(room);
+  },
+  async remove(messageId) {
+    const stored = read("messages", {});
+    for (const [roomId, list] of Object.entries(stored)) {
+      const message = list.find((item) => item.id === messageId && item.mine);
+      if (!message) continue;
+      Object.assign(message, { deleted: true, text: "" });
+      write("messages", { ...stored, [roomId]: list });
+      tell("message", message);
+      return;
+    }
+    throw new Error("You can only delete your own messages.");
+  },
+  async report(messageId, input) {
+    validateReport(input);
+  },
+  async markRead(roomId) {
+    write("read-at", { ...read("read-at", {}), [roomId]: new Date().toISOString() });
+  },
   async join(roomId) {
-    write("rooms", [...new Set([...read("rooms", ["kakum", "accra", "solo"]), roomId])]);
-    return (await this.rooms()).find((room) => room.id === roomId).members;
+    if (!signedInUser()) throw new Error("Sign in to join rooms.");
+    write("rooms", [...new Set([...read("rooms", []), roomId])]);
+    return 1;
   },
   async leave(roomId) {
-    write("rooms", read("rooms", ["kakum", "accra", "solo"]).filter((id) => id !== roomId));
-    return (await this.rooms()).find((room) => room.id === roomId).members;
+    write("rooms", read("rooms", []).filter((id) => id !== roomId));
+    return 0;
   },
-  async listen() {
+  async watch({ message }) {
+    if (!channel) return () => {};
+    const listener = (event) => {
+      if (event.data.kind === "message") message({ ...event.data.payload, mine: true });
+    };
+    channel.addEventListener("message", listener);
+    return () => channel.removeEventListener("message", listener);
+  },
+  async presence(roomId, onCount) {
+    onCount(signedInUser() ? 1 : 0);
     return () => {};
   },
 };
